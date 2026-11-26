@@ -47,7 +47,38 @@ cd timex_SUPSI
 
 ---
 
-### 1.3 Running on Windows
+### 1.3 ⚡ Single-Click Setup (Recommended)
+
+To install all frontend, backend, database, and Python AI requirements in a single step:
+
+- **On Windows**:
+  Simply **double-click** the file:
+  ```text
+  install_requirements.bat
+  ```
+  *(Or run `.\install_requirements.bat` in PowerShell/CMD).*
+
+- **On macOS / Linux**:
+  Open Terminal in the repository folder and run:
+  ```bash
+  chmod +x install_requirements.sh
+  ./install_requirements.sh
+  ```
+
+#### What the installer does automatically:
+1. Validates that **Node.js** and **Python** are installed.
+2. Installs all React/Vite dependencies (`Application/`).
+3. Installs all Express/SQLite dependencies (`Application/server/`).
+4. Seeds the initial SQLite database and user accounts (`admin`, `OP1`–`OP12`).
+5. Builds the production frontend bundle.
+6. Automatically creates the Python virtual environment (`venv`) and installs all AI defect detection dependencies.
+7. Once finished:
+   - Double-click **`Run_TG_QC.bat`** to start the Quality Control Web App (Port 44444).
+   - Double-click **`run_unified_studio.bat`** to start the ABB Cobot & Mech-Mind Studio (Port 5000 / 12343).
+
+---
+
+### 1.4 Manual Setup on Windows
 
 #### Step 1: Install Dependencies
 Open **PowerShell** or **Command Prompt** in the project folder:
@@ -379,7 +410,38 @@ cd timex_SUPSI
 
 ---
 
-### 1.3 Esecuzione su Windows
+### 1.3 ⚡ Installazione con Singolo Clic (Consigliata)
+
+Per installare automaticamente tutte le dipendenze frontend, backend, database e pacchetti Python AI in un solo passaggio:
+
+- **Su Windows**:
+  Fare semplicemente **doppio clic** sul file:
+  ```text
+  install_requirements.bat
+  ```
+  *(Oppure eseguire `.\install_requirements.bat` dal Prompt dei Comandi o PowerShell).*
+
+- **Su macOS / Linux**:
+  Aprire il Terminale nella cartella del repository ed eseguire:
+  ```bash
+  chmod +x install_requirements.sh
+  ./install_requirements.sh
+  ```
+
+#### Cosa fa l'installer automaticamente:
+1. Verifica la presenza di **Node.js** e **Python**.
+2. Installa le dipendenze React/Vite (`Application/`).
+3. Installa le dipendenze Express/SQLite (`Application/server/`).
+4. Inizializza e popola il database SQLite con gli account predefiniti (`admin`, `OP1`–`OP12`).
+5. Compila l'applicazione frontend per la produzione.
+6. Crea l'ambiente virtuale Python (`venv`) e installa tutti i requisiti di visione e AI PatchCore.
+7. Al termine:
+   - Doppio clic su **`Run_TG_QC.bat`** per avviare l'Applicazione Web di Controllo Qualità (Porta 44444).
+   - Doppio clic su **`run_unified_studio.bat`** per avviare lo Studio Cobot ABB e Mech-Mind (Porta 5000 / 12343).
+
+---
+
+### 1.4 Configurazione Manuale su Windows
 
 #### Passo 1: Installazione delle Dipendenze
 Aprire **PowerShell** o il **Prompt dei Comandi** nella cartella del progetto:

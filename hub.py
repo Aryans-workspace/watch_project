@@ -52,7 +52,9 @@ def start_module(module_name):
         env = os.environ.copy()
         env["PORT"] = "5003" # Target port for module iframe
         
-        python_exe = r"C:\Users\MECH MIND\PycharmProjects\sure2coat_v1\.venv1\Scripts\python.exe"
+        python_exe = os.path.join(BASE_DIR, "venv", "Scripts", "python.exe")
+        if not os.path.exists(python_exe):
+            python_exe = r"C:\Users\MECH MIND\PycharmProjects\sure2coat_v1\.venv1\Scripts\python.exe"
         if not os.path.exists(python_exe):
             python_exe = sys.executable or "python"
             

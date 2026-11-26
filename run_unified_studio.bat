@@ -11,12 +11,14 @@ echo.
 echo  Starting on Port 5000 (Web UI) ^& Port 12343 (Cobot RAPID Socket)...
 echo =====================================================================
 
-set PYTHON_EXE="C:\Users\MECH MIND\PycharmProjects\sure2coat_v1\.venv1\Scripts\python.exe"
+set PYTHON_EXE="%~dp0venv\Scripts\python.exe"
 
 if not exist %PYTHON_EXE% (
-    echo [ERROR] Virtual environment python.exe not found!
-    pause
-    exit /b 1
+    set PYTHON_EXE="C:\Users\MECH MIND\PycharmProjects\sure2coat_v1\.venv1\Scripts\python.exe"
+)
+
+if not exist %PYTHON_EXE% (
+    set PYTHON_EXE=python
 )
 
 cd /d "%~dp0"
