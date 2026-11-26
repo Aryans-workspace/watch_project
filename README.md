@@ -3,13 +3,28 @@
 
 ---
 
+> [!TIP]
+> ### ⚡ 1-Click Fast Setup / Installazione Rapida in 1 Clic
+> - **Windows**: Clone the repo and double-click **`install_requirements.bat`**.
+> - **macOS / Linux**: Clone the repo and run **`./install_requirements.sh`**.
+> 
+> *Automatically verifies Node.js/Python, installs all frontend and backend npm packages, seeds the SQLite database, builds the production client, creates the Python virtual environment (`venv`), and installs all vision and AI dependencies.*
+
+---
+
 ## 🌐 Language Navigation / Navigazione Lingua
 - [English Version](#-english-version)
   - [Part 1: Setup & Installation Guide (Windows & macOS)](#part-1-setup--installation-guide-windows--macos)
+    - [1.3 ⚡ Single-Click Setup (Recommended)](#13--single-click-setup-recommended)
+    - [1.4 Manual Setup on Windows](#14-manual-setup-on-windows)
+    - [1.5 Running on macOS](#15-running-on-macos)
   - [Part 2: Step-by-Step Application User Guide & Defect Logging](#part-2-step-by-step-application-user-guide--defect-logging)
   - [Part 3: Robotic Cell Operation (ABB Cobot & Mech-Mind 8-Slot Inspection)](#part-3-robotic-cell-operation-abb-cobot--mech-mind-8-slot-inspection)
 - [Versione Italiana](#-versione-italiana)
   - [Parte 1: Guida all'Installazione e Configurazione (Windows e macOS)](#parte-1-guida-allinstallazione-e-configurazione-windows-e-macos)
+    - [1.3 ⚡ Installazione con Singolo Clic (Consigliata)](#13--installazione-con-singolo-clic-consigliata)
+    - [1.4 Configurazione Manuale su Windows](#14-configurazione-manuale-su-windows)
+    - [1.5 Esecuzione su macOS](#15-esecuzione-su-macos)
   - [Parte 2: Guida Operativa all'Applicazione e Registrazione Difetti](#parte-2-guida-operativa-allapplicazione-e-registrazione-difetti)
   - [Parte 3: Funzionamento della Cella Robotica (ABB Cobot e Mech-Mind 8 Slot)](#parte-3-funzionamento-della-cella-robotica-abb-cobot-e-mech-mind-8-slot)
 
