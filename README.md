@@ -1,5 +1,5 @@
-# Timex Group Quality Control (TG-QC) — Industrial Quality Management & Robotic Automation Ecosystem
-*Sviluppato per Timex Group Luxury Division (Versace, Salvatore Ferragamo, Missoni) in collaborazione con SUPSI e Mech-Mind.*
+# Industrial Horological Quality Control (H-QC) & Robotic Inspection Ecosystem
+*Advanced Quality Assurance, Digital Traceability, and Automated Optical Inspection (AOI) for Precision Manufacturing.*
 
 ---
 
@@ -19,14 +19,14 @@
     - [1.4 Manual Setup on Windows](#14-manual-setup-on-windows)
     - [1.5 Running on macOS](#15-running-on-macos)
   - [Part 2: Step-by-Step Application User Guide & Defect Logging](#part-2-step-by-step-application-user-guide--defect-logging)
-  - [Part 3: Robotic Cell Operation (ABB Cobot & Mech-Mind 8-Slot Inspection)](#part-3-robotic-cell-operation-abb-cobot--mech-mind-8-slot-inspection)
+  - [Part 3: Robotic Cell Operation (Cobot & Industrial Vision 8-Slot Inspection)](#part-3-robotic-cell-operation-cobot--industrial-vision-8-slot-inspection)
 - [Versione Italiana](#-versione-italiana)
   - [Parte 1: Guida all'Installazione e Configurazione (Windows e macOS)](#parte-1-guida-allinstallazione-e-configurazione-windows-e-macos)
     - [1.3 ⚡ Installazione con Singolo Clic (Consigliata)](#13--installazione-con-singolo-clic-consigliata)
     - [1.4 Configurazione Manuale su Windows](#14-configurazione-manuale-su-windows)
     - [1.5 Esecuzione su macOS](#15-esecuzione-su-macos)
   - [Parte 2: Guida Operativa all'Applicazione e Registrazione Difetti](#parte-2-guida-operativa-allapplicazione-e-registrazione-difetti)
-  - [Parte 3: Funzionamento della Cella Robotica (ABB Cobot e Mech-Mind 8 Slot)](#parte-3-funzionamento-della-cella-robotica-abb-cobot-e-mech-mind-8-slot)
+  - [Parte 3: Funzionamento della Cella Robotica (Cobot e Visione Industriale 8 Slot)](#parte-3-funzionamento-della-cella-robotica-cobot-e-visione-industriale-8-slot)
 
 ---
 
@@ -36,7 +36,7 @@
 
 ## PART 1: Setup & Installation Guide (Windows & macOS)
 
-This guide provides instructions to install and run the TG-QC application cleanly on both **Windows** and **macOS** workstations.
+This guide provides instructions to install and run the Quality Control (QC) application cleanly on both **Windows** and **macOS** workstations.
 
 ### 1.1 Prerequisites
 Ensure the following are installed on your machine:
@@ -56,8 +56,8 @@ Ensure the following are installed on your machine:
 ### 1.2 Downloading the Repository
 Open your terminal (PowerShell, CMD, or macOS Terminal) and clone the repository:
 ```bash
-git clone https://github.com/Aryans-workspace/timex_SUPSI.git
-cd timex_SUPSI
+git clone <REPOSITORY_URL>
+cd <REPOSITORY_FOLDER>
 ```
 
 ---
@@ -89,7 +89,7 @@ To install all frontend, backend, database, and Python AI requirements in a sing
 6. Automatically creates the Python virtual environment (`venv`) and installs all AI defect detection dependencies.
 7. Once finished:
    - Double-click **`Run_TG_QC.bat`** to start the Quality Control Web App (Port 44444).
-   - Double-click **`run_unified_studio.bat`** to start the ABB Cobot & Mech-Mind Studio (Port 5000 / 12343).
+   - Double-click **`run_unified_studio.bat`** to start the Cobot & Industrial Vision Studio (Port 5000 / 12343).
 
 ---
 
@@ -196,7 +196,7 @@ This automatically builds the production client and starts the backend on **`htt
    - Click **"Carica Scheda Tecnica" (Upload Datasheet)**.
    - Upload the production Excel file (e.g., `310-2026 - VEPY00320.xlsx`).
    - The app automatically parses:
-     - Model SKU, Family name, and Brand (Versace, Ferragamo, etc.).
+     - Model SKU, Family name, and Brand/Model classification.
      - Batch quantity (e.g., 40 pieces per tray).
      - Individual watch serial numbers and barcodes.
      - Embedded technical component drawings directly from the spreadsheet.
@@ -277,7 +277,7 @@ Quality inspection follows a strict **6-check sequence**. A watch cannot skip ch
 
 ---
 
-## PART 3: Robotic Cell Operation (ABB Cobot & Mech-Mind 8-Slot Inspection)
+## PART 3: Robotic Cell Operation (Cobot & Industrial Vision 8-Slot Inspection)
 
 This section describes how the robotic automated optical inspection (AOI) cell is physically set up and operated in the laboratory.
 
@@ -301,7 +301,7 @@ This section describes how the robotic automated optical inspection (AOI) cell i
                              ▼
  ┌────────────────────────────────────────────────────────┐
  │                   PHYSICAL CELL                        │
- │  • ABB Cobot Arm with Mech-Mind Camera                 │
+ │  • Collaborative Robot Arm with Vision Camera          │
  │  • Precision Fixture Tray: 8 Slots (CMM1 – CMM8)       │
  │  • Dial Crop ROI: 26 mm × 29 mm                        │
  └────────────────────────────────────────────────────────┘
@@ -309,7 +309,7 @@ This section describes how the robotic automated optical inspection (AOI) cell i
 
 ### 3.1 Physical Setup & Hardware Architecture
 - **Robot Arm**: ABB Collaborative Robot (Cobot) connected to the local network.
-- **Vision Sensor**: Industrial Mech-Mind (Mech-Eye) 2D/3D camera mounted on the robot arm / gantry.
+- **Vision Sensor**: Industrial high-resolution 2D/3D vision camera mounted on the robot arm / gantry.
 - **Fixture Tray**: Custom precision fixture holding **8 watch slots (CMM1 through CMM8)**.
 - **Network Link**: Dedicated Ethernet link connecting the PC and ABB controller.
 
@@ -320,7 +320,7 @@ This section describes how the robotic automated optical inspection (AOI) cell i
 #### Step 1: Physical Preparation
 1. Place up to 8 watch cases or dials into the precision fixture tray (**Slots CMM1 to CMM8**).
 2. Ensure the ABB Cobot work area is clear and the safety circuit is enabled.
-3. Power on the Mech-Mind camera and ensure its network link is active.
+3. Power on the industrial vision camera and ensure its network link is active.
 
 #### Step 2: Start the Studio on the PC
 On the Windows PC, double-click **`run_unified_studio.bat`** (or `run_cobot_acquisition.bat` in `watch_defect_detection/`).
@@ -384,7 +384,7 @@ ABB Cobot                           Control PC (Port 12343)
 3. **Motion to Slot**: The Cobot moves along its calibrated path until positioned directly above the watch dial.
 4. **Trigger Signal**: When in position, the Cobot sends `"at_pos"`.
 5. **Frame Capture & AI Inference**:
-   - The PC instantly commands the Mech-Mind camera to capture a frame.
+   - The PC instantly commands the industrial vision camera to capture a frame.
    - The watch dial region of interest (**ROI: 26mm × 29mm**) is extracted.
    - The image is saved to the dataset and evaluated by PatchCore AI (generating an anomaly score and defect heatmap overlay).
 6. **Confirmation**: The PC sends `"captured"` back to the Cobot.
@@ -399,7 +399,7 @@ ABB Cobot                           Control PC (Port 12343)
 
 ## PARTE 1: Guida all'Installazione e Configurazione (Windows e macOS)
 
-Questa guida fornisce le istruzioni per installare ed eseguire l'applicazione TG-QC su postazioni **Windows** e **macOS**.
+Questa guida fornisce le istruzioni per installare ed eseguire l'applicazione di Controllo Qualità (QC) su postazioni **Windows** e **macOS**.
 
 ### 1.1 Prerequisiti
 Verificare che sul computer siano installati:
@@ -419,8 +419,8 @@ Verificare che sul computer siano installati:
 ### 1.2 Download del Repository
 Aprire il terminale (PowerShell, CMD o Terminale macOS) e clonare il repository:
 ```bash
-git clone https://github.com/Aryans-workspace/timex_SUPSI.git
-cd timex_SUPSI
+git clone <REPOSITORY_URL>
+cd <REPOSITORY_FOLDER>
 ```
 
 ---
@@ -452,7 +452,7 @@ Per installare automaticamente tutte le dipendenze frontend, backend, database e
 6. Crea l'ambiente virtuale Python (`venv`) e installa tutti i requisiti di visione e AI PatchCore.
 7. Al termine:
    - Doppio clic su **`Run_TG_QC.bat`** per avviare l'Applicazione Web di Controllo Qualità (Porta 44444).
-   - Doppio clic su **`run_unified_studio.bat`** per avviare lo Studio Cobot ABB e Mech-Mind (Porta 5000 / 12343).
+   - Doppio clic su **`run_unified_studio.bat`** per avviare lo Studio Cobot e Visione Industriale (Porta 5000 / 12343).
 
 ---
 
@@ -558,7 +558,7 @@ Lo script compila automaticamente il client e avvia il backend su **`http://loca
    - Cliccare su **"Carica Scheda Tecnica"**.
    - Caricare il file Excel di produzione (es. `310-2026 - VEPY00320.xlsx`).
    - L'applicazione estrae automaticamente:
-     - Codice SKU, Nome Famiglia e Brand (Versace, Ferragamo, ecc.).
+     - Codice SKU, Nome Famiglia e classificazione Brand/Modello.
      - Quantità del lotto (es. 40 pezzi per vassoio).
      - Matricole e codici a barre dei singoli orologi.
      - Disegni tecnici ed esplosi dei componenti estratti direttamente dall'Excel.
@@ -639,7 +639,7 @@ Il controllo qualità segue una **sequenza obbligatoria di 6 controlli**. Un oro
 
 ---
 
-## PARTE 3: Funzionamento della Cella Robotica (ABB Cobot e Mech-Mind 8 Slot)
+## PARTE 3: Funzionamento della Cella Robotica (Cobot e Visione Industriale 8 Slot)
 
 Questa sezione illustra come è configurata e utilizzata concretamente la cella robotica di ispezione visiva automatizzata (AOI) in laboratorio.
 
@@ -663,7 +663,7 @@ Questa sezione illustra come è configurata e utilizzata concretamente la cella 
                              ▼
  ┌────────────────────────────────────────────────────────┐
  │                     CELLA FISICA                       │
- │  • Braccio ABB Cobot con Telecamera Mech-Mind          │
+ │  • Braccio Robot Collaborativo con Telecamera          │
  │  • Vassoio di Posizionamento: 8 Alloggiamenti (CMM1-8) │
  │  • Finestra di Ritaglio (ROI) Quadrante: 26mm × 29mm   │
  └────────────────────────────────────────────────────────┘
@@ -671,7 +671,7 @@ Questa sezione illustra come è configurata e utilizzata concretamente la cella 
 
 ### 3.1 Configurazione Fisica e Hardware
 - **Robot**: Robot Collaborativo ABB (Cobot) collegato alla rete locale.
-- **Sensore di Visione**: Telecamera industriale 2D/3D Mech-Mind (Mech-Eye) montata sul robot.
+- **Sensore di Visione**: Telecamera industriale ad alta risoluzione 2D/3D montata sul robot.
 - **Dima Meccanica**: Vassoio calibrato con **8 alloggiamenti per orologi (CMM1 fino a CMM8)**.
 - **Connessione di Rete**: Cavo Ethernet dedicato tra il controller ABB e il PC di controllo.
 
@@ -682,7 +682,7 @@ Questa sezione illustra come è configurata e utilizzata concretamente la cella 
 #### Passo 1: Preparazione Fisica
 1. Posizionare fino a 8 casse o quadranti di orologio negli alloggiamenti del vassoio (**Slot CMM1 a CMM8**).
 2. Verificare che l'area di lavoro del Cobot ABB sia sgombra e che i dispositivi di sicurezza siano attivi.
-3. Accendere la telecamera Mech-Mind e assicurarsi che il collegamento di rete sia attivo.
+3. Accendere la telecamera di visione industriale e verificare la connessione di rete.
 
 #### Passo 2: Avvio dello Studio sul PC
 Sul PC Windows, fare doppio clic su **`run_unified_studio.bat`** (oppure su `run_cobot_acquisition.bat` in `watch_defect_detection/`).
@@ -746,7 +746,7 @@ Cobot ABB                           PC di Controllo (Porta 12343)
 3. **Posizionamento**: Il Cobot si muove lungo la traiettoria calibrata fino a posizionarsi perfettamente sopra l'orologio.
 4. **Segnale di Posizione Raggiunta**: Una volta fermo in quota, il Cobot invia `"at_pos"`.
 5. **Scatto e Inferenza AI**:
-   - Il PC comanda immediatamente alla telecamera Mech-Mind lo scatto del fotogramma ad alta risoluzione.
+   - Il PC comanda immediatamente alla telecamera lo scatto del fotogramma ad alta risoluzione.
    - Viene ritagliata la regione di interesse del quadrante (**ROI: 26mm × 29mm**).
    - L'immagine viene salvata nel dataset e analizzata dal modello PatchCore AI (che calcola lo score di anomalia e mappa termica del difetto).
 6. **Conferma di Fine Scatto**: Il PC invia `"captured"` al Cobot.
