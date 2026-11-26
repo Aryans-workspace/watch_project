@@ -1,0 +1,13 @@
+{
+  "model_id": "model_newtest_20261006_145552",
+  "dataset_name": "newtest",
+  "backbone": "pixel_ssim",
+  "roi_mode": "custom_mask",
+  "coreset_ratio": 0.02,
+  "memory_bank_size": 439,
+  "feature_dim": 384,
+  "threshold": 0.35,
+  "has_focus_mask": true,
+  "trained_at": "2026-10-06 14:55:52",
+  "duration_seconds": 0.6
+}

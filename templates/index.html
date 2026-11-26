@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mech-Eye Calibration Program | Live Stream Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/style.css?v=5">
+    <!-- Lucide Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dark-theme">
+<!-- Top Navigation / Telemetry Bar -->
+    <header class="top-nav">
+        <div class="brand">
+            <div class="brand-logo">
+                <i class="fa-solid fa-crosshairs"></i>
+            </div>
+            <div class="brand-text">
+                <h1>Mech-Eye Calibration Program</h1>
+                <span class="subtext">Optical Alignment & AI Defect Detection</span>
+            </div>
+        </div>
+
+        <div class="camera-telemetry">
+            <div class="telemetry-item" id="camStatusBadge">
+                <span class="status-indicator online"></span>
+                <span class="label">Status:</span>
+                <strong class="value" id="statusText">CONNECTING...</strong>
+            </div>
+
+            <div class="telemetry-divider"></div>
+
+            <div class="telemetry-item">
+                <span class="label"><i class="fa-solid fa-video"></i> Model:</span>
+                <strong class="value" id="modelText">Mech-Eye UHP-140</strong>
+            </div>
+
+            <div class="telemetry-divider"></div>
+
+            <div class="telemetry-item">
+                <span class="label"><i class="fa-solid fa-network-wired"></i> IP:</span>
+                <strong class="value" id="ipText">169.254.8.29</strong>
+            </div>
+
+            <div class="telemetry-divider"></div>
+
+            <div class="telemetry-item">
+                <span class="label"><i class="fa-solid fa-expand"></i> Resolution:</span>
+                <strong class="value" id="resText">2048 × 1536</strong>
+            </div>
+
+            <div class="telemetry-divider"></div>
+
+            <div class="telemetry-item">
+                <span class="label"><i class="fa-solid fa-gauge-high"></i> FPS:</span>
+                <strong class="value highlight-fps" id="fpsText">0.0</strong>
+            </div>
+        </div>
+
+        <div class="top-actions">
+            <button id="btnReconnect" class="btn btn-secondary btn-sm" title="Reconnect Camera">
+                <i class="fa-solid fa-rotate"></i> Reconnect
+            </button>
+            <button id="btnFullscreen" class="btn btn-secondary btn-sm" title="Toggle Fullscreen (F)">
+                <i class="fa-solid fa-maximize"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-layout">
+        <!-- Live Stream Viewport Area -->
+        <section class="viewport-section">
+            <div class="viewport-wrapper" id="viewportWrapper">
+                <!-- Flash Animation Layer on Capture -->
+                <div class="capture-flash" id="captureFlash"></div>
+
+                <!-- Video / Stream Container -->
+                <div class="stream-container" id="streamContainer">
+                    <img id="liveFeed" src="/video_feed" alt="Mech-Eye Stream Feed" crossorigin="anonymous">
+                </div>
+
+                <!-- Center Coordinate HUD -->
+                <div class="viewport-hud-top-left" id="hudCenter">
+                    <div class="hud-badge">
+                        <i class="fa-solid fa-location-crosshairs text-green"></i>
+                        <span>Center: <strong id="hudCoords">X: 1024, Y: 768</strong></span>
+                    </div>
+                </div>
+
+                <!-- Hover Mouse Coordinate HUD -->
+                <div class="viewport-hud-bottom-left" id="hudMouse">
+                    <div class="hud-badge secondary">
+                        <i class="fa-solid fa-arrow-pointer"></i>
+                        <span>Cursor: <strong id="mouseCoords">-- , --</strong></span>
+                    </div>
+                </div>
+
+                <!-- Stream Overlay Notification -->
+                <div class="toast-notification" id="toast">Capture saved successfully!</div>
+
+                <!-- Floating Viewport Controls -->
+                <div class="viewport-toolbar">
+                    <div class="btn-group">
+                        <button id="btnZoomIn" class="btn btn-icon" title="Zoom In (+)">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i>
+                        </button>
+                        <button id="btnZoomOut" class="btn btn-icon" title="Zoom Out (-)">
+                            <i class="fa-solid fa-magnifying-glass-minus"></i>
+                        </button>
+                        <button id="btnZoomFit" class="btn btn-icon active" title="Fit to Window">
+                            <i class="fa-solid fa-compress"></i> Fit
+                        </button>
+                        <button id="btnZoom100" class="btn btn-icon" title="100% 1:1 Pixel Scale">
+                            1:1
+                        </button>
+                    </div>
+
+                    <div class="toolbar-divider"></div>
+
+                    <button id="btnToggleCrosshairQuick" class="btn btn-icon active" title="Toggle Crosshairs (C)">
+                        <i class="fa-solid fa-plus text-green"></i> Crosshair
+                    </button>
+
+                    <div class="toolbar-divider"></div>
+
+                    <button id="btnMainCapture" class="btn btn-primary btn-capture" title="Capture Snapshot (Space)">
+                        <i class="fa-solid fa-camera"></i>
+                        <span>CAPTURE FRAME</span>
+                        <kbd>Space</kbd>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Captures Tray (Collapsible Drawer at Bottom) -->
+            <div class="captures-tray" id="capturesTray">
+                <div class="tray-header">
+                    <div class="tray-title">
+                        <i class="fa-solid fa-images"></i>
+                        <span>Recent Captures</span>
+                        <span class="badge" id="captureCountBadge">0</span>
+                    </div>
+                    <div class="tray-actions">
+                        <button id="btnRefreshGallery" class="btn btn-ghost btn-xs" title="Refresh gallery">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="tray-carousel" id="galleryList">
+                    <div class="empty-gallery">No captures taken yet. Click "Capture Frame" or press Space.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sidebar: Calibration & Tool Controls -->
+        <aside class="sidebar-section">
+            <div class="sidebar-scrollable">
+                <!-- Panel 1: Crosshair Overlay Settings -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-crosshairs text-green"></i>
+                            <h3>Calibration Crosshairs (+)</h3>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="chkCrosshair" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div class="card-body" id="crosshairControls">
+                        <div class="control-row">
+                            <label>Span Mode</label>
+                            <div class="btn-group w-full">
+                                <button id="btnSpanFull" class="btn btn-toggle active" data-span="full">Full Screen</button>
+                                <button id="btnSpanFixed" class="btn btn-toggle" data-span="fixed">Fixed (1000px)</button>
+                            </div>
+                        </div>
+
+                        <div class="control-row">
+                            <div class="label-with-val">
+                                <label>Line Thickness</label>
+                                <span class="val-display" id="valThickness">2 px</span>
+                            </div>
+                            <input type="range" id="rngThickness" min="1" max="6" value="2" step="1" class="slider-range">
+                        </div>
+
+                        <div class="checkbox-row">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" id="chkCenterCircle" checked>
+                                <span class="checkmark"></span>
+                                Center Precision Dot
+                            </label>
+                        </div>
+
+                        <div class="checkbox-row">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" id="chkRings">
+                                <span class="checkmark"></span>
+                                Concentric Guide Rings (50-400px)
+                            </label>
+                        </div>
+
+                        <div class="checkbox-row">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" id="chkCoords" checked>
+                                <span class="checkmark"></span>
+                                Show Coordinates HUD
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Center Alignment & Offset Tuning -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-arrows-up-down-left-right text-accent"></i>
+                            <h3>Center Alignment & Nudge</h3>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="calibration-readout">
+                            <div class="readout-box">
+                                <span class="readout-label">Center X</span>
+                                <span class="readout-value" id="readoutCx">1024</span>
+                            </div>
+                            <div class="readout-box">
+                                <span class="readout-label">Center Y</span>
+                                <span class="readout-value" id="readoutCy">768</span>
+                            </div>
+                            <div class="readout-box offset-box">
+                                <span class="readout-label">Offset (ΔX, ΔY)</span>
+                                <span class="readout-value" id="readoutOffset">+0, +0</span>
+                            </div>
+                        </div>
+
+                        <div class="nudge-section">
+                            <div class="step-selector">
+                                <span>Step Size:</span>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-step active" data-step="1">1 px</button>
+                                    <button class="btn btn-step" data-step="5">5 px</button>
+                                    <button class="btn btn-step" data-step="10">10 px</button>
+                                    <button class="btn btn-step" data-step="50">50 px</button>
+                                </div>
+                            </div>
+
+                            <!-- D-Pad Directional Controls -->
+                            <div class="dpad-container">
+                                <div class="dpad-row">
+                                    <button id="btnNudgeUp" class="btn btn-dpad" title="Nudge Center Up (Arrow Up)">
+                                        <i class="fa-solid fa-chevron-up"></i>
+                                    </button>
+                                </div>
+                                <div class="dpad-row middle">
+                                    <button id="btnNudgeLeft" class="btn btn-dpad" title="Nudge Center Left (Arrow Left)">
+                                        <i class="fa-solid fa-chevron-left"></i>
+                                    </button>
+                                    <button id="btnResetCenter" class="btn btn-dpad center-reset" title="Reset to True Geometric Center">
+                                        <i class="fa-solid fa-bullseye"></i>
+                                    </button>
+                                    <button id="btnNudgeRight" class="btn btn-dpad" title="Nudge Center Right (Arrow Right)">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                                <div class="dpad-row">
+                                    <button id="btnNudgeDown" class="btn btn-dpad" title="Nudge Center Down (Arrow Down)">
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="btnResetOffsetsFull" class="btn btn-secondary w-full mt-2">
+                            <i class="fa-solid fa-arrow-rotate-left"></i> Reset to Geometric Center (0, 0)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Panel 3: Snapshot & Capture Configuration -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-camera text-blue"></i>
+                            <h3>Snapshot Capture Options</h3>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="control-row">
+                            <label>Capture Mode</label>
+                            <div class="btn-group w-full">
+                                <button id="btnCaptureModeRaw" class="btn btn-toggle active" data-mode="raw">
+                                    Clean Raw Frame
+                                </button>
+                                <button id="btnCaptureModeOverlay" class="btn btn-toggle" data-mode="overlay">
+                                    With Crosshair (+)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="info-note">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>Lossless PNG files will be saved directly into the <code>datasets/</code> folder.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 4: Keyboard Shortcuts Cheatsheet -->
+                <div class="card shortcuts-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-keyboard text-muted"></i>
+                            <h3>Keyboard Shortcuts</h3>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="shortcuts-list">
+                            <li><kbd>Space</kbd> or <kbd>S</kbd> <span>Capture Frame</span></li>
+                            <li><kbd>C</kbd> <span>Toggle Crosshairs</span></li>
+                            <li><kbd>F</kbd> <span>Toggle Fullscreen</span></li>
+                            <li><kbd>R</kbd> <span>Reset View (Zoom/Pan)</span></li>
+                            <li><kbd>0</kbd> <span>Reset Center Offsets</span></li>
+                            <li><kbd>↑ ↓ ← →</kbd> <span>Nudge Alignment Center</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Modal for Full-Size Image Preview -->
+    <div class="modal" id="imageModal">
+        <div class="modal-backdrop" id="modalBackdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title" id="modalFilename">capture_example.png</span>
+                <div class="modal-actions">
+                    <a id="btnDownloadModal" class="btn btn-secondary btn-sm" download>
+                        <i class="fa-solid fa-download"></i> Download
+                    </a>
+                    <button id="btnCloseModal" class="btn btn-icon btn-sm">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="Capture Preview">
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

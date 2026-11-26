@@ -1,0 +1,13 @@
+{
+  "model_id": "model_newtest_20261006_145805",
+  "dataset_name": "newtest",
+  "backbone": "resnet18",
+  "roi_mode": "dial",
+  "coreset_ratio": 0.02,
+  "memory_bank_size": 3951,
+  "feature_dim": 384,
+  "threshold": 0.35,
+  "has_focus_mask": false,
+  "trained_at": "2026-10-06 14:58:05",
+  "duration_seconds": 4.8
+}

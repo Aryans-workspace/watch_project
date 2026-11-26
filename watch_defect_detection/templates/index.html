@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABB Cobot & Mech-Mind Watch Inspection | PatchCore Dataset Capture</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/style.css?v=5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dark-theme">
+
+    <!-- Top Telemetry & Network Bar -->
+    <header class="top-nav">
+        <div class="brand">
+            <div class="brand-logo">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <div class="brand-text">
+                <h1>ABB Cobot & Mech-Mind Inspection</h1>
+                <span class="subtext">PatchCore Dataset Acquisition Studio</span>
+            </div>
+        </div>
+
+        <div class="telemetry-bar">
+            <!-- Cobot Socket Status -->
+            <div class="telemetry-pill" id="cobotStatusPill">
+                <span class="indicator-dot listening" id="cobotDot"></span>
+                <span class="pill-label"><i class="fa-solid fa-satellite-dish"></i> Cobot Socket:</span>
+                <strong class="pill-value" id="cobotStatusText">PORT 12343 (LISTENING)</strong>
+            </div>
+
+            <!-- Server IP for RAPID configuration -->
+            <div class="telemetry-pill" title="Set this IP in your RAPID CAM_SERVER_IP">
+                <span class="pill-label"><i class="fa-solid fa-network-wired"></i> Server IP:</span>
+                <strong class="pill-value highlight-ip" id="hostIpText">Detecting...</strong>
+            </div>
+
+            <!-- Camera Status -->
+            <div class="telemetry-pill">
+                <span class="indicator-dot online" id="cameraDot"></span>
+                <span class="pill-label"><i class="fa-solid fa-video"></i> Camera:</span>
+                <strong class="pill-value" id="cameraModelText">Mech-Eye UHP-140</strong>
+                <span class="pill-badge" id="cameraFpsText">0.0 FPS</span>
+            </div>
+        </div>
+
+        <div class="top-actions">
+            <button id="btnReconnectCam" class="btn btn-secondary btn-sm" title="Reconnect Camera">
+                <i class="fa-solid fa-rotate"></i> Camera
+            </button>
+            <button id="btnFullscreen" class="btn btn-secondary btn-sm" title="Toggle Fullscreen">
+                <i class="fa-solid fa-maximize"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="main-layout">
+        <!-- Left Column: Camera Viewport & 8-Slot Inspection Tray -->
+        <section class="viewport-section">
+            <!-- Camera Live Feed -->
+            <div class="camera-card">
+                <div class="camera-header">
+                    <div class="header-left">
+                        <i class="fa-solid fa-eye text-green"></i>
+                        <span class="card-title">Mech-Eye Live Stream (2048 × 1536)</span>
+                    </div>
+                    <div class="live-badge">
+                        <span class="live-dot"></span> LIVE FEED
+                    </div>
+                </div>
+
+                <div class="viewport-container" id="viewportContainer">
+                    <img id="liveFeed" src="/video_feed" alt="Mech-Eye Stream" crossorigin="anonymous">
+                    
+                    <!-- Flash effect on image capture -->
+                    <div class="capture-flash" id="captureFlash"></div>
+
+                    <!-- Active slot overlay badge -->
+                    <div class="active-slot-overlay" id="activeSlotOverlay" style="display: none;">
+                        <i class="fa-solid fa-crosshairs fa-spin"></i>
+                        <span>AT SLOT <strong id="overlaySlotNum">1</strong> - CAPTURING...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8-Slot Inspection Tray Visualizer -->
+            <div class="tray-card">
+                <div class="tray-card-header">
+                    <div class="header-left">
+                        <i class="fa-solid fa-table-cells text-accent"></i>
+                        <h3>Watch Fixture Tray (8 Slots: CMM1 – CMM8)</h3>
+                    </div>
+                    <span class="subtext">Click any individual slot or use 'START ACQUISITION' to capture all</span>
+                </div>
+
+                <!-- Individual Slot Action Bar -->
+                <div class="individual-slot-bar" style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin: 12px 0 14px 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <label for="selectCaptureSlot" style="font-size: 0.88rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-bullseye text-accent"></i> Individual Slot:
+                        </label>
+                        <select id="selectCaptureSlot" class="custom-select form-select-sm" style="background: var(--bg-dark); color: var(--text-primary); border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font-size: 0.88rem; font-weight: 600;">
+                            <option value="1">Slot 1 (CMM1)</option>
+                            <option value="2">Slot 2 (CMM2)</option>
+                            <option value="3">Slot 3 (CMM3)</option>
+                            <option value="4">Slot 4 (CMM4)</option>
+                            <option value="5">Slot 5 (CMM5)</option>
+                            <option value="6">Slot 6 (CMM6)</option>
+                            <option value="7">Slot 7 (CMM7)</option>
+                            <option value="8" selected>Slot 8 (CMM8)</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button id="btnAcquireSlotCobot" class="btn btn-secondary btn-sm" title="Command ABB Cobot to move to this slot and take capture">
+                            <i class="fa-solid fa-robot"></i> Move Cobot &amp; Capture
+                        </button>
+                        <button id="btnAcquireSlotInstant" class="btn btn-primary btn-sm" title="Capture current camera view instantly to this slot without robot movement">
+                            <i class="fa-solid fa-camera"></i> Snap Camera Now
+                        </button>
+                    </div>
+                </div>
+
+                <div class="slots-grid">
+                    <!-- Slots 1 to 8 dynamically rendered -->
+                    <div class="slot-box" id="slotCard-1" data-slot="1">
+                        <div class="slot-header">
+                            <span class="slot-title">SLOT 1 (CMM1)</span>
+                            <span class="slot-status idle">IDLE</span>
+                        </div>
+                        <div class="slot-thumb" id="slotThumb-1">
+                            <i class="fa-regular fa-clock empty-icon"></i>
+                        </div>
+                        <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                            <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="1" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Move Cobot to Slot 1"><i class="fa-solid fa-robot"></i> Cobot</button>
+                            <button class="btn btn-primary btn-xs btn-slot-instant" data-slot="1" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Snap Camera to Slot 1"><i class="fa-solid fa-camera"></i> Snap</button>
+                        </div>
+                    </div>
+
+                    <div class="slot-box" id="slotCard-2" data-slot="2">
+                        <div class="slot-header">
+                            <span class="slot-title">SLOT 2 (CMM2)</span>
+                            <span class="slot-status idle">IDLE</span>
+                        </div>
+                        <div class="slot-thumb" id="slotThumb-2">
+                            <i class="fa-regular fa-clock empty-icon"></i>
+                        </div>
+                        <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                            <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="2" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Move Cobot to Slot 2"><i class="fa-solid fa-robot"></i> Cobot</button>
+                            <button class="btn btn-primary btn-xs btn-slot-instant" data-slot="2" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Snap Camera to Slot 2"><i class="fa-solid fa-camera"></i> Snap</button>
+                        </div>
+                    </div>
+
+                    <div class="slot-box" id="slotCard-3" data-slot="3">
+                        <div class="slot-header">
+                            <span class="slot-title">SLOT 3 (CMM3)</span>
+                            <span class="slot-status idle">IDLE</span>
+                        </div>
+                        <div class="slot-thumb" id="slotThumb-3">
+                            <i class="fa-regular fa-clock empty-icon"></i>
+                        </div>
+                        <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                            <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="3" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Move Cobot to Slot 3"><i class="fa-solid fa-robot"></i> Cobot</button>
+                            <button class="btn btn-primary btn-xs btn-slot-instant" data-slot="3" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Snap Camera to Slot 3"><i class="fa-solid fa-camera"></i> Snap</button>
+                        </div>
+                    </div>
+
+                    <div class="slot-box" id="slotCard-4" data-slot="4">
+                        <div class="slot-header">
+                            <span class="slot-title">SLOT 4 (CMM4)</span>
+                            <span class="slot-status idle">IDLE</span>
+                        </div>
+                        <div class="slot-thumb" id="slotThumb-4">
+                            <i class="fa-regular fa-clock empty-icon"></i>
+                        </div>
+                        <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                            <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="4" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Move Cobot to Slot 4"><i class="fa-solid fa-robot"></i> Cobot</button>
+                            <button class="btn btn-primary btn-xs btn-slot-instant" data-slot="4" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Snap Camera to Slot 4"><i class="fa-solid fa-camera"></i> Snap</button>
+                        </div>
+                    </div>
+
+                    <div class="slot-box" id="slotCard-5" data-slot="5">
+                        <div class="slot-header">
+                            <span class="slot-title">SLOT 5 (CMM5)</span>
+                            <span class="slot-status idle">IDLE</span>
+                        </div>
+                        <div class="slot-thumb" id="slotThumb-5">
+                            <i class="fa-regular fa-clock empty-icon"></i>
+                        </div>
+                        <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                            <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="5" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Move Cobot to Slot 5"><i class="fa-solid fa-robot"></i> Cobot</button>
+                            <button class="btn btn-primary btn-xs btn-slot-instant" data-slot="5" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Snap Camera to Slot 5"><i class="fa-solid fa-camera"></i> Snap</button>
+                        </div>
+                    </div>
+
+                    <div class="slot-box" id="slotCard-6" data-slot="6">
+                        <div class="slot-header">
+                            <span class="slot-title">SLOT 6 (CMM6)</span>
+                            <span class="slot-status idle">IDLE</span>
+                        </div>
+                        <div class="slot-thumb" id="slotThumb-6">
+                            <i class="fa-regular fa-clock empty-icon"></i>
+                        </div>
+                        <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                            <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="6" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Move Cobot to Slot 6"><i class="fa-solid fa-robot"></i> Cobot</button>
+                            <button class="btn btn-primary btn-xs btn-slot-instant" data-slot="6" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Snap Camera to Slot 6"><i class="fa-solid fa-camera"></i> Snap</button>
+                        </div>
+                    </div>
+
+                    <div class="slot-box" id="slotCard-7" data-slot="7">
+                        <div class="slot-header">
+                            <span class="slot-title">SLOT 7 (CMM7)</span>
+                            <span class="slot-status idle">IDLE</span>
+                        </div>
+                        <div class="slot-thumb" id="slotThumb-7">
+                            <i class="fa-regular fa-clock empty-icon"></i>
+                        </div>
+                        <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                            <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="7" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Move Cobot to Slot 7"><i class="fa-solid fa-robot"></i> Cobot</button>
+                            <button class="btn btn-primary btn-xs btn-slot-instant" data-slot="7" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Snap Camera to Slot 7"><i class="fa-solid fa-camera"></i> Snap</button>
+                        </div>
+                    </div>
+
+                    <div class="slot-box" id="slotCard-8" data-slot="8">
+                        <div class="slot-header">
+                            <span class="slot-title">SLOT 8 (CMM8)</span>
+                            <span class="slot-status idle">IDLE</span>
+                        </div>
+                        <div class="slot-thumb" id="slotThumb-8">
+                            <i class="fa-regular fa-clock empty-icon"></i>
+                        </div>
+                        <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                            <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="8" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Move Cobot to Slot 8"><i class="fa-solid fa-robot"></i> Cobot</button>
+                            <button class="btn btn-primary btn-xs btn-slot-instant" data-slot="8" style="flex: 1; padding: 4px 6px; font-size: 0.75rem;" title="Snap Camera to Slot 8"><i class="fa-solid fa-camera"></i> Snap</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column: Acquisition Controls & PatchCore Dataset Panel -->
+        <aside class="sidebar-section">
+            <div class="sidebar-scrollable">
+                <!-- Panel 0: Slot ROI Crop Settings (26mm x 29mm from center) -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-crop-simple text-green"></i>
+                            <h3>Slot Crop ROI (26mm × 29mm)</h3>
+                        </div>
+                        <label class="switch" title="Toggle Crop Output">
+                            <input type="checkbox" id="chkCropEnabled" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="crop-specs-readout">
+                            <div class="readout-box">
+                                <span class="readout-label">Horiz (Center ±)</span>
+                                <strong class="readout-value" id="readoutMmH">26 mm</strong>
+                            </div>
+                            <div class="readout-box">
+                                <span class="readout-label">Vert (Center ±)</span>
+                                <strong class="readout-value" id="readoutMmV">29 mm</strong>
+                            </div>
+                            <div class="readout-box span-2">
+                                <span class="readout-label">Cropped Output Resolution</span>
+                                <strong class="readout-value text-green" id="cropResText">828 × 922 px</strong>
+                            </div>
+                        </div>
+
+                        <div class="checkbox-row mt-1">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" id="chkZoomLiveStream">
+                                <span class="checkmark"></span>
+                                Zoom live stream to cropped ROI
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 1: Dataset & Inspection Configuration -->
+                <!-- Panel 1: Dataset & Inspection Configuration -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-folder-tree text-accent"></i>
+                            <h3>PatchCore Dataset Target</h3>
+                        </div>
+                        <span class="badge badge-info" title="Images saved as ddmmyy_timecaptured_slotid.png">ddmmyy_time_slotid</span>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Active Folder Selector & Creator -->
+                        <div class="control-row">
+                            <div class="row-label-with-action">
+                                <label for="selectDatasetFolder"><i class="fa-solid fa-folder"></i> Active Dataset Folder</label>
+                                <button type="button" class="btn btn-secondary btn-xs" id="btnOpenNewFolderModal" title="Create a new dataset folder">
+                                    <i class="fa-solid fa-folder-plus"></i> + New Folder
+                                </button>
+                            </div>
+                            <div class="folder-selector-wrap">
+                                <select id="selectDatasetFolder" class="select-input">
+                                    <option value="watches">watches (Default)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Category Radio / Buttons (3 active categories) -->
+                        <div class="control-row">
+                            <label>Dataset Category</label>
+                            <div class="category-selector">
+                                <label class="cat-radio-btn active border-train" data-cat="train_good">
+                                    <input type="radio" name="datasetCategory" value="train_good" checked>
+                                    <div class="radio-content">
+                                        <div class="cat-title-row">
+                                            <span class="cat-dot dot-train"></span>
+                                            <strong>Train (Good Watch)</strong>
+                                        </div>
+                                        <span>Normal references for memory bank</span>
+                                    </div>
+                                </label>
+
+                                <label class="cat-radio-btn border-val-good" data-cat="val_good">
+                                    <input type="radio" name="datasetCategory" value="val_good">
+                                    <div class="radio-content">
+                                        <div class="cat-title-row">
+                                            <span class="cat-dot dot-val-good"></span>
+                                            <strong>Validation (Good)</strong>
+                                        </div>
+                                        <span>Normal validation watches</span>
+                                    </div>
+                                </label>
+
+                                <label class="cat-radio-btn border-val-defect" data-cat="val_defect">
+                                    <input type="radio" name="datasetCategory" value="val_defect">
+                                    <div class="radio-content">
+                                        <div class="cat-title-row">
+                                            <span class="cat-dot dot-val-defect"></span>
+                                            <strong>Validation (Defect)</strong>
+                                        </div>
+                                        <span>Defective validation watches</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Master Acquisition Execution & Continuous Mode -->
+                <div class="card execute-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-bolt text-green"></i>
+                            <h3>Acquisition Execution</h3>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Acquisition Mode Tabs -->
+                        <div class="mode-toggle-group">
+                            <button type="button" class="mode-btn active" id="btnModeSingle">
+                                <i class="fa-solid fa-play"></i> Single Pass (Slots 1-8)
+                            </button>
+                            <button type="button" class="mode-btn" id="btnModeContinuous">
+                                <i class="fa-solid fa-repeat"></i> Continuous Run
+                            </button>
+                        </div>
+
+                        <!-- Continuous Mode Configuration (Date & Time Picker) -->
+                        <div class="continuous-settings" id="continuousSettings" style="display: none;">
+                            <label class="control-label">
+                                <i class="fa-regular fa-clock text-accent"></i> Capture Until (Date & Time)
+                            </label>
+                            <div class="datetime-input-wrap">
+                                <input type="datetime-local" id="inputEndDateTime" class="text-input datetime-picker">
+                            </div>
+                            <div class="preset-buttons">
+                                <span class="preset-label">Quick:</span>
+                                <button type="button" class="btn-preset" data-add-min="30">+30m</button>
+                                <button type="button" class="btn-preset" data-add-min="60">+1h</button>
+                                <button type="button" class="btn-preset" data-add-min="120">+2h</button>
+                                <button type="button" class="btn-preset" data-add-min="240">+4h</button>
+                                <button type="button" class="btn-preset" data-add-min="480">+8h</button>
+                            </div>
+                        </div>
+
+                        <!-- Continuous Run Telemetry / Countdown Box -->
+                        <div class="continuous-status-box" id="continuousStatusBox" style="display: none;">
+                            <div class="status-row">
+                                <span class="status-title"><i class="fa-solid fa-arrows-rotate fa-spin text-accent"></i> Continuous Acquisition Active</span>
+                                <span class="badge badge-accent" id="continuousCycleBadge">Cycle 1</span>
+                            </div>
+                            <div class="countdown-display">
+                                <span class="countdown-label">Time Remaining:</span>
+                                <strong class="countdown-timer" id="continuousCountdown">--:--:--</strong>
+                            </div>
+                        </div>
+
+                        <!-- Start Button -->
+                        <button id="btnStartFull" class="btn btn-primary btn-hero">
+                            <i class="fa-solid fa-play"></i>
+                            <span id="btnStartFullText">START ACQUISITION (SLOTS 1 - 8)</span>
+                        </button>
+
+                        <!-- Simulated Dry Run Button -->
+                        <button id="btnSimulate" class="btn btn-secondary btn-sub-hero">
+                            <i class="fa-solid fa-flask"></i>
+                            <span id="btnSimulateText">Simulate Cobot Run (Dry Run)</span>
+                        </button>
+
+                        <!-- Cancel / Stop Button -->
+                        <button id="btnCancel" class="btn btn-danger w-full mt-1" style="display: none;">
+                            <i class="fa-solid fa-stop"></i> <span id="btnCancelText">Cancel Active Job</span>
+                        </button>
+
+                        <!-- Progress Bar -->
+                        <div class="progress-box" id="progressBox" style="display: none;">
+                            <div class="progress-labels">
+                                <span id="progressText">Progress: 0 / 8 slots</span>
+                                <span id="progressPercent">0%</span>
+                            </div>
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 3: Dataset Statistics -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-chart-pie text-blue"></i>
+                            <h3>Dataset Counts (PatchCore)</h3>
+                        </div>
+                        <span class="badge" id="totalImagesBadge">0 images</span>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="dataset-stats-grid">
+                            <div class="stat-pill border-train">
+                                <span class="stat-label"><span class="cat-dot dot-train"></span> Train Good</span>
+                                <strong class="stat-count text-green" id="countTrainGood">0</strong>
+                            </div>
+                            <div class="stat-pill border-val-good">
+                                <span class="stat-label"><span class="cat-dot dot-val-good"></span> Val Good</span>
+                                <strong class="stat-count text-blue" id="countValGood">0</strong>
+                            </div>
+                            <div class="stat-pill border-val-defect">
+                                <span class="stat-label"><span class="cat-dot dot-val-defect"></span> Val Defect</span>
+                                <strong class="stat-count text-red" id="countValDefect">0</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 4: Robot Socket Live Activity Log -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-terminal text-dim"></i>
+                            <h3>Cobot Socket Activity (RAPID)</h3>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="terminal-log" id="terminalLog">
+                            <div class="log-line text-muted">[System] Waiting for ABB Cobot socket connection...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Bottom Collapsible Tray: Recent Captured Images -->
+    <footer class="bottom-gallery">
+        <div class="gallery-header">
+            <div class="header-left">
+                <i class="fa-solid fa-images"></i>
+                <span>Captured Watch Dataset Stream</span>
+                <span class="badge" id="galleryCountBadge">0</span>
+                <div class="gallery-legend">
+                    <span class="legend-item"><span class="legend-dot dot-train"></span> Train Good</span>
+                    <span class="legend-item"><span class="legend-dot dot-val-good"></span> Val Good</span>
+                    <span class="legend-item"><span class="legend-dot dot-val-defect"></span> Val Defect</span>
+                </div>
+            </div>
+            <button id="btnRefreshGallery" class="btn btn-ghost btn-xs">
+                <i class="fa-solid fa-arrows-rotate"></i> Refresh
+            </button>
+        </div>
+        <div class="gallery-strip" id="galleryStrip">
+            <div class="empty-tray">Images captured during cobot run will appear here automatically.</div>
+        </div>
+    </footer>
+
+    <!-- Fullscreen Modal Preview -->
+    <div class="modal" id="imageModal">
+        <div class="modal-backdrop" id="modalBackdrop"></div>
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span class="modal-title" id="modalTitle">watch_slot.png</span>
+                    <span class="badge" id="modalCategoryBadge">Train Good</span>
+                </div>
+                <div class="modal-actions">
+                    <a id="btnDownloadModal" class="btn btn-secondary btn-sm" download>
+                        <i class="fa-solid fa-download"></i> Download
+                    </a>
+                    <button id="btnDeleteModal" class="btn btn-danger btn-sm" title="Delete this image">
+                        <i class="fa-solid fa-trash-can"></i> Delete
+                    </button>
+                    <button id="btnCloseModal" class="btn btn-icon btn-sm">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <img id="modalImg" src="" alt="Full Preview">
+            </div>
+        </div>
+    </div>
+
+    <!-- Create New Folder Modal -->
+    <div class="modal" id="newFolderModal">
+        <div class="modal-backdrop" id="newFolderModalBackdrop"></div>
+        <div class="modal-dialog modal-dialog-sm">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <i class="fa-solid fa-folder-plus text-accent"></i>
+                    <span class="modal-title">Create Dataset Folder</span>
+                </div>
+                <button id="btnCloseFolderModal" class="btn btn-icon btn-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body-form">
+                <p class="modal-desc">Create a new folder to store watch acquisitions (e.g. <code>watches_batch2</code>, <code>watch_chronograph</code>). Standard PatchCore dataset directories (<code>train/good</code>, <code>val/good</code>, <code>val/defect</code>) are set up automatically.</p>
+                <div class="form-group">
+                    <label for="inputNewFolderName" class="control-label">Folder Name:</label>
+                    <input type="text" id="inputNewFolderName" class="text-input w-full" placeholder="e.g. watches_batch2" maxlength="40" autocomplete="off">
+                </div>
+                <div class="modal-form-actions">
+                    <button type="button" id="btnCancelFolderModal" class="btn btn-secondary btn-sm">Cancel</button>
+                    <button type="button" id="btnSubmitNewFolder" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-check"></i> Create & Select
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast">Ready</div>
+
+    <script src="/static/js/app.js?v=2.1"></script>
+</body>
+</html>

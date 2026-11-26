@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Phone Camera Companion | AI Defect Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+        body {
+            background-color: #090b0e;
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Header */
+        .mobile-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 52px;
+            background: linear-gradient(180deg, rgba(9, 11, 14, 0.95) 0%, rgba(9, 11, 14, 0.75) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            z-index: 50;
+            border-bottom: 1px solid rgba(223, 193, 109, 0.2);
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(23, 26, 31, 0.85);
+            border: 1px solid rgba(223, 193, 109, 0.4);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.78rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 8px #22c55e;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: rgba(33, 37, 43, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .icon-btn.active {
+            background: #dfc16d;
+            color: #000;
+            border-color: #dfc16d;
+        }
+
+        /* Category Selector Bar */
+        .category-bar {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            right: 0;
+            background: rgba(14, 17, 22, 0.88);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 6px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 45;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .category-bar-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.72rem;
+            color: #9ca3af;
+        }
+
+        .dataset-tag {
+            color: #dfc16d;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+        }
+
+        .category-pills {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .pill-btn {
+            flex: 1;
+            background: rgba(28, 32, 38, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #9ca3af;
+            padding: 5px 4px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .pill-btn.active.pill-train {
+            background: rgba(34, 197, 94, 0.18);
+            border-color: #22c55e;
+            color: #4ade80;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.25);
+        }
+
+        .pill-btn.active.pill-val-good {
+            background: rgba(59, 130, 246, 0.18);
+            border-color: #3b82f6;
+            color: #60a5fa;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.25);
+        }
+
+        .pill-btn.active.pill-val-defect {
+            background: rgba(239, 68, 68, 0.18);
+            border-color: #ef4444;
+            color: #f87171;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.25);
+        }
+
+        .pill-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .dot-green { background: #22c55e; }
+        .dot-blue { background: #3b82f6; }
+        .dot-red { background: #ef4444; }
+
+        /* Viewfinder Area */
+        .viewfinder-wrapper {
+            position: relative;
+            flex-grow: 1;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #090b0e;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Reticle / Optical Target Overlay */
+        .optical-reticle {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            border: 2px dashed rgba(223, 193, 109, 0.7);
+            border-radius: 50%;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .optical-reticle::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #dfc16d;
+        }
+
+        .reticle-label {
+            position: absolute;
+            bottom: -28px;
+            font-size: 0.72rem;
+            color: #dfc16d;
+            background: rgba(0,0,0,0.7);
+            padding: 3px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(223, 193, 109, 0.3);
+        }
+
+        /* Insecure HTTP Fallback Banner */
+        .fallback-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(9, 11, 14, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+            z-index: 40;
+        }
+
+        .fallback-card {
+            background: #171a1f;
+            border: 1px solid rgba(223, 193, 109, 0.4);
+            border-radius: 14px;
+            padding: 22px 18px;
+            max-width: 360px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+        }
+
+        .fallback-icon {
+            font-size: 2.2rem;
+            color: #dfc16d;
+            margin-bottom: 12px;
+        }
+
+        .fallback-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .fallback-card p {
+            font-size: 0.82rem;
+            color: #9ca3af;
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+
+        .action-button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .btn-link-https {
+            background: #dfc16d;
+            color: #000;
+            font-weight: 700;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            box-shadow: 0 0 15px rgba(223, 193, 109, 0.3);
+        }
+
+        .btn-native-snap {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            font-weight: 600;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .sub-help {
+            font-size: 0.72rem;
+            color: #64748b;
+            margin-top: 10px;
+        }
+
+        /* Flash layer */
+        .camera-flash {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.08s ease-out;
+            z-index: 100;
+        }
+
+        /* Mobile Zoom Floating Bar */
+        .mobile-zoom-pillbar {
+            position: absolute;
+            bottom: 124px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(14, 17, 23, 0.88);
+            border: 1px solid rgba(223, 193, 109, 0.35);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 4px 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 45;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+        }
+
+        .m-zoom-tag {
+            font-size: 0.70rem;
+            color: #9ca3af;
+            margin-right: 2px;
+            font-weight: 600;
+        }
+
+        .m-zoom-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #d1d5db;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .m-zoom-btn.active {
+            background: #dfc16d;
+            border-color: #dfc16d;
+            color: #000;
+            font-weight: 700;
+            box-shadow: 0 0 8px rgba(223, 193, 109, 0.4);
+        }
+
+        /* Bottom Controls */
+        .mobile-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 115px;
+            background: linear-gradient(0deg, rgba(9, 11, 14, 0.95) 0%, rgba(9, 11, 14, 0.6) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px 14px 16px;
+            z-index: 50;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .footer-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .footer-col.left {
+            align-items: flex-start;
+            min-width: 85px;
+        }
+
+        .footer-col.right {
+            align-items: flex-end;
+            min-width: 85px;
+        }
+
+        .footer-col.center {
+            align-items: center;
+        }
+
+        .resolution-badge {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.72rem;
+            color: #dfc16d;
+            background: rgba(0,0,0,0.65);
+            padding: 3px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(223, 193, 109, 0.3);
+            white-space: nowrap;
+        }
+
+        .sub-badge {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.68rem;
+            color: #64748b;
+        }
+
+        /* Big Shutter Button */
+        .shutter-btn {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: transparent;
+            border: 3.5px solid #fff;
+            padding: 4px;
+            cursor: pointer;
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s ease;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .shutter-btn:active { transform: scale(0.92); }
+
+        .shutter-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #dfc16d;
+        }
+
+        .shutter-hint {
+            font-size: 0.65rem;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+
+        /* Native Shutter Button (Guaranteed 100% full optical sensor resolution) */
+        .btn-native-footer {
+            background: rgba(223, 193, 109, 0.12);
+            border: 1px solid rgba(223, 193, 109, 0.45);
+            color: #dfc16d;
+            padding: 7px 10px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-native-footer i {
+            font-size: 1.1rem;
+        }
+
+        .btn-native-footer:active {
+            background: #dfc16d;
+            color: #000;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: absolute;
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(23, 26, 31, 0.95);
+            border: 1px solid #dfc16d;
+            color: #fff;
+            padding: 9px 16px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            z-index: 200;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            max-width: 90%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="mobile-header">
+        <div class="status-pill">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="connText">Connected to PC</span>
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn" id="btnTorch" title="Toggle Flashlight"><i class="fa-solid fa-lightbulb"></i></button>
+            <button class="icon-btn" id="btnFlip" title="Flip Camera"><i class="fa-solid fa-camera-rotate"></i></button>
+        </div>
+    </header>
+
+    <!-- Category Selector Bar -->
+    <div class="category-bar">
+        <div class="category-bar-top">
+            <span>Target Dataset: <strong class="dataset-tag" id="activeDatasetLabel">Default</strong></span>
+            <span id="sensorStatusBadge" style="color: #4ade80;">Full Optical Mode</span>
+        </div>
+        <div class="category-pills">
+            <button class="pill-btn active pill-train" data-cat="train_good">
+                <span class="pill-dot dot-green"></span> Normal (Train)
+            </button>
+            <button class="pill-btn pill-val-good" data-cat="val_good">
+                <span class="pill-dot dot-blue"></span> Normal (Val)
+            </button>
+            <button class="pill-btn pill-val-defect" data-cat="val_defect">
+                <span class="pill-dot dot-red"></span> Defect (Val)
+            </button>
+        </div>
+    </div>
+
+    <div class="viewfinder-wrapper">
+        <video id="videoElement" autoplay playsinline muted></video>
+        
+        <div class="optical-reticle" id="reticleOverlay">
+            <span class="reticle-label">Align Dial in Target</span>
+        </div>
+
+        <!-- Insecure Origin (HTTP) Fallback Helper Card -->
+        <div class="fallback-container" id="fallbackCard">
+            <div class="fallback-card">
+                <i class="fa-solid fa-shield-halved fallback-icon"></i>
+                <h3>Camera Permission</h3>
+                <p>Mobile Chrome requires <strong>HTTPS</strong> for live in-browser video streaming, or you can snap directly with your <strong>native phone camera</strong> at 100% full resolution!</p>
+                <div class="action-button-group">
+                    <a id="btnGoHttps" href="#" class="btn-link-https">
+                        <i class="fa-solid fa-lock"></i> Switch to Secure HTTPS
+                    </a>
+                    <label class="btn-native-snap">
+                        <input type="file" id="nativeCameraInput" accept="image/*" capture="environment" style="display: none;">
+                        <i class="fa-solid fa-camera"></i> Snap with Native Camera (Max Sensor Res)
+                    </label>
+                </div>
+                <p class="sub-help">When opening HTTPS, tap <em>"Advanced"</em> &rarr; <em>"Proceed to PC"</em> on Chrome's certificate prompt.</p>
+            </div>
+        </div>
+
+        <div class="camera-flash" id="flashLayer"></div>
+    </div>
+
+    <!-- Mobile Zoom Floating Bar -->
+    <div class="mobile-zoom-pillbar" id="mobileZoomBar">
+        <span class="m-zoom-tag"><i class="fa-solid fa-magnifying-glass"></i> Zoom:</span>
+        <button class="m-zoom-btn" data-zoom="1.0">1.0x</button>
+        <button class="m-zoom-btn" data-zoom="1.25">1.25x</button>
+        <button class="m-zoom-btn active" data-zoom="1.5">1.5x</button>
+        <button class="m-zoom-btn" data-zoom="2.0">2.0x</button>
+        <button class="m-zoom-btn" data-zoom="2.5">2.5x</button>
+    </div>
+
+    <footer class="mobile-footer">
+        <div class="footer-col left">
+            <span class="resolution-badge" id="resBadge">Connecting...</span>
+            <span class="sub-badge" id="pingBadge">-- ms</span>
+        </div>
+
+        <div class="footer-col center">
+            <button class="shutter-btn" id="btnShutter" title="Take Photo">
+                <div class="shutter-inner"></div>
+            </button>
+            <span class="shutter-hint">Tap to Capture</span>
+        </div>
+
+        <div class="footer-col right">
+            <label class="btn-native-footer" title="Open Native Phone Camera (100% Raw Optical Resolution)">
+                <input type="file" id="nativeFooterInput" accept="image/*" capture="environment" style="display: none;">
+                <i class="fa-solid fa-camera"></i>
+                <span>Native 100%</span>
+            </label>
+        </div>
+    </footer>
+
+    <div class="toast" id="toastBox">
+        <i class="fa-solid fa-check text-accent"></i>
+        <span id="toastMsg">Captured & Sent to PC!</span>
+    </div>
+
+    <!-- Hidden canvas for photo extraction -->
+    <canvas id="captureCanvas" style="display: none;"></canvas>
+
+    <script>
+        const video = document.getElementById('videoElement');
+        const canvas = document.getElementById('captureCanvas');
+        const flashLayer = document.getElementById('flashLayer');
+        const resBadge = document.getElementById('resBadge');
+        const pingBadge = document.getElementById('pingBadge');
+        const toastBox = document.getElementById('toastBox');
+        const toastMsg = document.getElementById('toastMsg');
+        const btnShutter = document.getElementById('btnShutter');
+        const btnTorch = document.getElementById('btnTorch');
+        const btnFlip = document.getElementById('btnFlip');
+        const fallbackCard = document.getElementById('fallbackCard');
+        const btnGoHttps = document.getElementById('btnGoHttps');
+        const nativeCameraInput = document.getElementById('nativeCameraInput');
+        const nativeFooterInput = document.getElementById('nativeFooterInput');
+        const reticleOverlay = document.getElementById('reticleOverlay');
+        const activeDatasetLabel = document.getElementById('activeDatasetLabel');
+        const categoryPillBtns = document.querySelectorAll('.pill-btn');
+
+        let currentStream = null;
+        let imageCapture = null;
+        let videoTrack = null;
+        let facingMode = "environment"; // Rear camera
+        let torchActive = false;
+        let isPolling = true;
+        let selectedCategory = "train_good";
+        let currentDataset = "";
+        let maxSensorCaps = null;
+
+        // Configure HTTPS Link dynamically
+        const httpsUrl = `https://${window.location.hostname}:5443/phone`;
+        btnGoHttps.href = httpsUrl;
+
+        // Category selection
+        categoryPillBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryPillBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedCategory = btn.dataset.cat;
+                showToast(`Target: ${btn.innerText.trim()}`);
+            });
+        });
+
+        // Mobile Zoom selection
+        const mZoomBtns = document.querySelectorAll('.m-zoom-btn');
+        let currentPhoneZoom = 1.5;
+
+        mZoomBtns.forEach(btn => {
+            btn.addEventListener('click', async () => {
+                mZoomBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentPhoneZoom = parseFloat(btn.dataset.zoom);
+                showToast(`Zoom: ${currentPhoneZoom}x`);
+
+                // 1. Sync zoom to PC Orchestrator
+                try {
+                    await fetch('/api/camera/crop', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ crop_zoom: currentPhoneZoom })
+                    });
+                } catch (e) {}
+
+                // 2. Hardware optical/sensor zoom if supported by mobile browser
+                if (videoTrack && typeof videoTrack.getCapabilities === 'function') {
+                    try {
+                        const caps = videoTrack.getCapabilities();
+                        if (caps.zoom) {
+                            const z = Math.min(caps.zoom.max, Math.max(caps.zoom.min, currentPhoneZoom));
+                            await videoTrack.applyConstraints({ advanced: [{ zoom: z }] });
+                        }
+                    } catch (e) {}
+                }
+            });
+        });
+
+        function showToast(msg) {
+            toastMsg.innerText = msg;
+            toastBox.style.display = 'flex';
+            setTimeout(() => { toastBox.style.display = 'none'; }, 2800);
+        }
+
+        // Start Camera with Maximum Resolution Constraints
+        async function startCamera() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(t => t.stop());
+            }
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                console.warn("navigator.mediaDevices is unavailable in this origin.");
+                fallbackCard.style.display = 'flex';
+                reticleOverlay.style.display = 'none';
+                resBadge.innerText = "HTTP Native";
+                registerWithPC("Native Camera Mode");
+                return;
+            }
+
+            fallbackCard.style.display = 'none';
+            reticleOverlay.style.display = 'flex';
+
+            // Request highest possible resolution and continuous focus
+            const constraints = {
+                audio: false,
+                video: {
+                    facingMode: facingMode,
+                    width: { ideal: 4032, max: 8000 },
+                    height: { ideal: 3024, max: 6000 },
+                    focusMode: "continuous"
+                }
+            };
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                currentStream = stream;
+                video.srcObject = stream;
+                videoTrack = stream.getVideoTracks()[0];
+
+                if ('ImageCapture' in window) {
+                    try {
+                        imageCapture = new ImageCapture(videoTrack);
+                        if (typeof imageCapture.getPhotoCapabilities === 'function') {
+                            maxSensorCaps = await imageCapture.getPhotoCapabilities();
+                            console.log("[PhotoCaps]", maxSensorCaps);
+                        }
+                    } catch (e) {
+                        console.warn("ImageCapture init error:", e);
+                    }
+                }
+
+                const settings = videoTrack.getSettings();
+                let resText = "";
+                if (maxSensorCaps && maxSensorCaps.imageWidth && maxSensorCaps.imageHeight) {
+                    resText = `${maxSensorCaps.imageWidth.max} × ${maxSensorCaps.imageHeight.max}`;
+                } else {
+                    resText = `${settings.width || video.videoWidth || 1920} × ${settings.height || video.videoHeight || 1080}`;
+                }
+                resBadge.innerText = resText;
+
+                registerWithPC(resText);
+                startStreamPush();
+            } catch (err) {
+                console.error("Camera access failed:", err);
+                fallbackCard.style.display = 'flex';
+                reticleOverlay.style.display = 'none';
+                showToast("Camera permission needed");
+            }
+        }
+
+        // Register client with PC
+        async function registerWithPC(resText) {
+            try {
+                await fetch('/api/phone/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        device: navigator.userAgent.includes('iPhone') ? 'Apple iPhone' : 'Android Smartphone',
+                        resolution: resText
+                    })
+                });
+            } catch (e) {}
+        }
+
+        // Upload any image blob to PC Orchestrator
+        async function uploadSnapshot(blob, saveDirectly = false) {
+            if (!blob) return;
+            const formData = new FormData();
+            formData.append('image', blob, 'mobile_capture.jpg');
+            if (saveDirectly) {
+                formData.append('save_to_dataset', 'true');
+                formData.append('category', selectedCategory);
+                if (currentDataset) formData.append('folder', currentDataset);
+            }
+
+            try {
+                const resp = await fetch('/api/phone/upload_snapshot', {
+                    method: 'POST',
+                    body: formData
+                });
+                const res = await resp.json();
+                if (res.success) {
+                    const resStr = res.resolution || (res.width ? `${res.width}×${res.height}` : 'Full Res');
+                    if (res.saved_to_dataset) {
+                        showToast(`Saved ${resStr} to ${res.category}!`);
+                    } else {
+                        showToast(`High-Res Photo (${resStr}) Sent to PC!`);
+                    }
+                } else {
+                    showToast("Upload failed: " + (res.error || "Server rejected"));
+                }
+            } catch (err) {
+                showToast("Upload failed: " + err.message);
+            }
+        }
+
+        // Capture photo from live sensor with maximum available optical detail
+        async function triggerHighResCapture(isFromPC = false) {
+            flashLayer.classList.add('flashing');
+            setTimeout(() => flashLayer.classList.remove('flashing'), 100);
+            if ('vibrate' in navigator) navigator.vibrate([40]);
+
+            // If in HTTP fallback mode, trigger native camera
+            if (!videoTrack) {
+                if (nativeFooterInput) nativeFooterInput.click();
+                else if (nativeCameraInput) nativeCameraInput.click();
+                return;
+            }
+
+            try {
+                let blob = null;
+
+                // Priority 1: ImageCapture API with device maximum photo capabilities
+                if (imageCapture && typeof imageCapture.takePhoto === 'function') {
+                    try {
+                        let photoOpts = {};
+                        if (maxSensorCaps && maxSensorCaps.imageWidth && maxSensorCaps.imageHeight) {
+                            photoOpts = {
+                                imageWidth: maxSensorCaps.imageWidth.max,
+                                imageHeight: maxSensorCaps.imageHeight.max
+                            };
+                        }
+                        blob = await imageCapture.takePhoto(photoOpts);
+                    } catch (err1) {
+                        console.warn("takePhoto with constrained settings failed, trying unconstrained:", err1);
+                        try {
+                            blob = await imageCapture.takePhoto();
+                        } catch (err2) {
+                            console.warn("unconstrained takePhoto failed:", err2);
+                        }
+                    }
+                }
+
+                // Priority 2: Canvas draw from video frame at maximum natural resolution and 0.98 JPEG quality
+                if (!blob) {
+                    canvas.width = video.videoWidth || 1920;
+                    canvas.height = video.videoHeight || 1080;
+                    const ctx = canvas.getContext('2d', { alpha: false });
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.98));
+                }
+
+                // When user taps shutter directly on phone, save directly to active dataset category!
+                // When triggered by PC long-poll, PC's /api/datasets/capture orchestrator handles saving
+                await uploadSnapshot(blob, !isFromPC);
+            } catch (err) {
+                showToast("Capture failed: " + err.message);
+            }
+        }
+
+        // Handle native camera file capture (100% full optical sensor resolution)
+        function handleNativeFile(file) {
+            if (file) {
+                showToast("Uploading native camera photo...");
+                uploadSnapshot(file, true);
+            }
+        }
+
+        if (nativeCameraInput) {
+            nativeCameraInput.addEventListener('change', (e) => {
+                handleNativeFile(e.target.files[0]);
+                nativeCameraInput.value = '';
+            });
+        }
+
+        if (nativeFooterInput) {
+            nativeFooterInput.addEventListener('change', (e) => {
+                handleNativeFile(e.target.files[0]);
+                nativeFooterInput.value = '';
+            });
+        }
+
+        // Push live video preview frames to PC at crisp 1080p width
+        let pushCanvas = document.createElement('canvas');
+        function startStreamPush() {
+            setInterval(async () => {
+                if (!video.videoWidth) return;
+                try {
+                    const targetWidth = Math.min(1080, video.videoWidth);
+                    const scale = targetWidth / video.videoWidth;
+                    pushCanvas.width = targetWidth;
+                    pushCanvas.height = Math.round(video.videoHeight * scale);
+                    const ctx = pushCanvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, pushCanvas.width, pushCanvas.height);
+                    pushCanvas.toBlob(async (blob) => {
+                        if (blob) {
+                            await fetch('/api/phone/stream_frame', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/octet-stream' },
+                                body: blob
+                            });
+                        }
+                    }, 'image/jpeg', 0.78);
+                } catch (e) {}
+            }, 120); // ~8 FPS preview stream
+        }
+
+        // Long-poll PC Orchestrator for capture triggers and settings
+        async function pollPCOrchestrator() {
+            while (isPolling) {
+                const t0 = performance.now();
+                try {
+                    const resp = await fetch('/api/phone/poll_trigger');
+                    const latency = Math.round(performance.now() - t0);
+                    pingBadge.innerText = latency + " ms";
+
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data.active_dataset && data.active_dataset !== currentDataset) {
+                            currentDataset = data.active_dataset;
+                            activeDatasetLabel.innerText = currentDataset;
+                        }
+                        if (data.capture_requested) {
+                            console.log("[POLL] PC triggered capture request!");
+                            await triggerHighResCapture(true);
+                        }
+                        if (data.torch_on !== undefined && data.torch_on !== torchActive) {
+                            toggleTorch(data.torch_on);
+                        }
+                    }
+                } catch (e) {
+                    await new Promise(r => setTimeout(r, 1500));
+                }
+            }
+        }
+
+        // Torch Toggle
+        async function toggleTorch(forceState) {
+            if (!videoTrack) return;
+            torchActive = forceState !== undefined ? forceState : !torchActive;
+            btnTorch.classList.toggle('active', torchActive);
+            try {
+                await videoTrack.applyConstraints({
+                    advanced: [{ torch: torchActive }]
+                });
+            } catch (e) {}
+        }
+
+        // Event listeners
+        btnShutter.addEventListener('click', () => triggerHighResCapture(false));
+        btnTorch.addEventListener('click', () => toggleTorch());
+        btnFlip.addEventListener('click', () => {
+            facingMode = facingMode === "environment" ? "user" : "environment";
+            startCamera();
+        });
+
+        window.addEventListener('load', () => {
+            startCamera();
+            pollPCOrchestrator();
+        });
+    </script>
+</body>
+</html>

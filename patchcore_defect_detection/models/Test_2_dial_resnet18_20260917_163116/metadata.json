@@ -1,0 +1,25 @@
+{
+  "model_id": "Test_2_dial_resnet18_20260917_163116",
+  "dataset_name": "Test_2",
+  "dataset_path": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2",
+  "backbone": "resnet18",
+  "layers": [
+    "layer1",
+    "layer2"
+  ],
+  "focus_mode": "dial",
+  "image_size": [
+    448,
+    448
+  ],
+  "coreset_ratio": 0.1,
+  "train_images_count": 8,
+  "created_at": "2026-09-17 16:31:33",
+  "weights_file": "weights.pt",
+  "threshold": 23.861,
+  "dust_sensitivity": "high",
+  "perimeter_ratio": 0.925,
+  "normal_mean_score": 22.98,
+  "normal_max_score": 23.56,
+  "status": "ready"
+}

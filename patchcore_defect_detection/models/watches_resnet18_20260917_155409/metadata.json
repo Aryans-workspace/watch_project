@@ -1,0 +1,18 @@
+{
+  "model_id": "watches_resnet18_20260917_155409",
+  "dataset_name": "watches",
+  "dataset_path": "c:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\watches",
+  "backbone": "resnet18",
+  "coreset_ratio": 0.1,
+  "train_images_count": 24,
+  "created_at": "2026-09-17 15:54:20",
+  "weights_file": "weights.pt",
+  "threshold": 28.288,
+  "normal_mean_score": 25.07,
+  "normal_max_score": 26.64,
+  "image_size": [
+    256,
+    256
+  ],
+  "status": "ready"
+}

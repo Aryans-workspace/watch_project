@@ -1,0 +1,16 @@
+/Users/mac_of_ram/Library/CloudStorage/GoogleDrive-iamaryanram@gmail.com/My Drive/Timex/Application/Live Captions/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+LOG (VoskAPI:ReadDataFiles():model.cc:213) Decoding params beam=13 max-active=7000 lattice-beam=6
+LOG (VoskAPI:ReadDataFiles():model.cc:216) Silence phones 1:2:3:4:5:11:12:13:14:15
+qt.qpa.fonts: Populating font family aliases took 315 ms. Replace uses of missing font family "-apple-system" with one that exists to avoid this cost. 
+LOG (VoskAPI:RemoveOrphanNodes():nnet-nnet.cc:948) Removed 0 orphan nodes.
+LOG (VoskAPI:RemoveOrphanComponents():nnet-nnet.cc:847) Removing 0 orphan components.
+LOG (VoskAPI:ReadDataFiles():model.cc:248) Loading i-vector extractor from /Users/mac_of_ram/.cache/vosk/vosk-model-en-us-0.22/ivector/final.ie
+LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:183) Computing derived variables for iVector extractor
+LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:204) Done.
+LOG (VoskAPI:ReadDataFiles():model.cc:279) Loading HCLG from /Users/mac_of_ram/.cache/vosk/vosk-model-en-us-0.22/graph/HCLG.fst
+LOG (VoskAPI:ReadDataFiles():model.cc:294) Loading words from /Users/mac_of_ram/.cache/vosk/vosk-model-en-us-0.22/graph/words.txt
+LOG (VoskAPI:ReadDataFiles():model.cc:303) Loading winfo /Users/mac_of_ram/.cache/vosk/vosk-model-en-us-0.22/graph/phones/word_boundary.int
+LOG (VoskAPI:ReadDataFiles():model.cc:310) Loading subtract G.fst model from /Users/mac_of_ram/.cache/vosk/vosk-model-en-us-0.22/rescore/G.fst
+LOG (VoskAPI:ReadDataFiles():model.cc:312) Loading CARPA model from /Users/mac_of_ram/.cache/vosk/vosk-model-en-us-0.22/rescore/G.carpa
+LOG (VoskAPI:ReadDataFiles():model.cc:318) Loading RNNLM model from /Users/mac_of_ram/.cache/vosk/vosk-model-en-us-0.22/rnnlm/final.raw

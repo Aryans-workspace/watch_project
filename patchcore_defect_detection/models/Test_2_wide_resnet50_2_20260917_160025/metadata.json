@@ -1,0 +1,18 @@
+{
+  "model_id": "Test_2_wide_resnet50_2_20260917_160025",
+  "dataset_name": "Test_2",
+  "dataset_path": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2",
+  "backbone": "wide_resnet50_2",
+  "coreset_ratio": 0.2,
+  "train_images_count": 8,
+  "created_at": "2026-09-17 16:00:52",
+  "weights_file": "weights.pt",
+  "threshold": 117.785,
+  "normal_mean_score": 115.88,
+  "normal_max_score": 116.84,
+  "image_size": [
+    256,
+    256
+  ],
+  "status": "ready"
+}

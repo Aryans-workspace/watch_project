@@ -1,0 +1,418 @@
+{
+  "model_id": "Test_2_dial_resnet18_20260917_163723",
+  "threshold": 23.585,
+  "total_validated": 8,
+  "accuracy_pct": 100.0,
+  "normal_count": 2,
+  "defect_count": 6,
+  "avg_normal_score": 23.12,
+  "avg_defect_score": 30.41,
+  "items": [
+    {
+      "filename": "170926_152629_slot7.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\good\\170926_152629_slot7.png",
+      "ground_truth": "good",
+      "is_defect_gt": false,
+      "score": 23.232,
+      "dust_count": 0,
+      "defects": [],
+      "threshold": 23.585,
+      "is_anomaly": false,
+      "verdict": "PASS",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation/hm_170926_152629_slot7.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation_orig/170926_152629_slot7.png"
+    },
+    {
+      "filename": "170926_152641_slot8.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\good\\170926_152641_slot8.png",
+      "ground_truth": "good",
+      "is_defect_gt": false,
+      "score": 23.011,
+      "dust_count": 0,
+      "defects": [],
+      "threshold": 23.585,
+      "is_anomaly": false,
+      "verdict": "PASS",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation/hm_170926_152641_slot8.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation_orig/170926_152641_slot8.png"
+    },
+    {
+      "filename": "170926_152655_slot1.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\defect\\170926_152655_slot1.png",
+      "ground_truth": "defect",
+      "is_defect_gt": true,
+      "score": 35.585,
+      "dust_count": 6,
+      "defects": [
+        {
+          "type": "dust",
+          "area": 19,
+          "box": [
+            390,
+            337,
+            5,
+            4
+          ],
+          "centroid": [
+            392.10526315789474,
+            338.57894736842104
+          ]
+        },
+        {
+          "type": "dust",
+          "area": 51,
+          "box": [
+            347,
+            363,
+            8,
+            9
+          ],
+          "centroid": [
+            350.8627450980392,
+            367.19607843137254
+          ]
+        },
+        {
+          "type": "dust",
+          "area": 50,
+          "box": [
+            550,
+            378,
+            8,
+            8
+          ],
+          "centroid": [
+            553.7,
+            381.98
+          ]
+        },
+        {
+          "type": "dust",
+          "area": 68,
+          "box": [
+            319,
+            420,
+            9,
+            10
+          ],
+          "centroid": [
+            323.05882352941177,
+            424.4852941176471
+          ]
+        },
+        {
+          "type": "dust",
+          "area": 24,
+          "box": [
+            537,
+            422,
+            6,
+            6
+          ],
+          "centroid": [
+            539.5,
+            424.5
+          ]
+        },
+        {
+          "type": "dust",
+          "area": 39,
+          "box": [
+            495,
+            534,
+            7,
+            8
+          ],
+          "centroid": [
+            498.2307692307692,
+            537.7435897435897
+          ]
+        }
+      ],
+      "threshold": 23.585,
+      "is_anomaly": true,
+      "verdict": "DEFECT",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation/hm_170926_152655_slot1.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation_orig/170926_152655_slot1.png"
+    },
+    {
+      "filename": "170926_152712_slot2.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\defect\\170926_152712_slot2.png",
+      "ground_truth": "defect",
+      "is_defect_gt": true,
+      "score": 24.905,
+      "dust_count": 1,
+      "defects": [
+        {
+          "type": "dust",
+          "area": 3,
+          "box": [
+            426,
+            511,
+            3,
+            3
+          ],
+          "centroid": [
+            427.0,
+            512.0
+          ]
+        }
+      ],
+      "threshold": 23.585,
+      "is_anomaly": true,
+      "verdict": "DEFECT",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation/hm_170926_152712_slot2.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation_orig/170926_152712_slot2.png"
+    },
+    {
+      "filename": "170926_152724_slot3.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\defect\\170926_152724_slot3.png",
+      "ground_truth": "defect",
+      "is_defect_gt": true,
+      "score": 27.705,
+      "dust_count": 1,
+      "defects": [
+        {
+          "type": "dust",
+          "area": 73,
+          "box": [
+            481,
+            468,
+            10,
+            10
+          ],
+          "centroid": [
+            485.6849315068493,
+            472.6027397260274
+          ]
+        }
+      ],
+      "threshold": 23.585,
+      "is_anomaly": true,
+      "verdict": "DEFECT",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation/hm_170926_152724_slot3.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation_orig/170926_152724_slot3.png"
+    },
+    {
+      "filename": "170926_152735_slot4.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\defect\\170926_152735_slot4.png",
+      "ground_truth": "defect",
+      "is_defect_gt": true,
+      "score": 35.585,
+      "dust_count": 7,
+      "defects": [
+        {
+          "type": "dust",
+          "area": 20,
+          "box": [
+            509,
+            357,
+            6,
+            5
+          ],
+          "centroid": [
+            511.6,
+            358.7
+          ]
+        },
+        {
+          "type": "dust",
+          "area": 21,
+          "box": [
+            330,
+            406,
+            5,
+            5
+          ],
+          "centroid": [
+            332.0,
+            408.0
+          ]
+        },
+        {
+          "type": "dust",
+          "area": 26,
+          "box": [
+            450,
+            439,
+            6,
+            6
+          ],
+          "centroid": [
+            452.46153846153845,
+            441.65384615384613
+          ]
+        },
+        {
+          "type": "dust",
+          "area": 23,
+          "box": [
+            596,
+            502,
+            5,
+            5
+          ],
+          "centroid": [
+            598.0,
+            504.0
+          ]
+        },
+        {
+          "type": "dust",
+          "area": 18,
+          "box": [
+            380,
+            508,
+            4,
+            5
+          ],
+          "centroid": [
+            381.5,
+            510.22222222222223
+          ]
+        },
+        {
+          "type": "dust",
+          "area": 26,
+          "box": [
+            541,
+            542,
+            5,
+            6
+          ],
+          "centroid": [
+            543.0,
+            544.5
+          ]
+        },
+        {
+          "type": "dust",
+          "area": 22,
+          "box": [
+            402,
+            609,
+            5,
+            5
+          ],
+          "centroid": [
+            404.09090909090907,
+            610.9090909090909
+          ]
+        }
+      ],
+      "threshold": 23.585,
+      "is_anomaly": true,
+      "verdict": "DEFECT",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation/hm_170926_152735_slot4.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation_orig/170926_152735_slot4.png"
+    },
+    {
+      "filename": "170926_152747_slot5.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\defect\\170926_152747_slot5.png",
+      "ground_truth": "defect",
+      "is_defect_gt": true,
+      "score": 33.705,
+      "dust_count": 4,
+      "defects": [
+        {
+          "type": "dust",
+          "area": 33,
+          "box": [
+            427,
+            360,
+            6,
+            6
+          ],
+          "centroid": [
+            429.57575757575756,
+            362.42424242424244
+          ]
+        },
+        {
+          "type": "dust",
+          "area": 46,
+          "box": [
+            411,
+            367,
+            7,
+            8
+          ],
+          "centroid": [
+            413.9130434782609,
+            370.3695652173913
+          ]
+        },
+        {
+          "type": "dust",
+          "area": 51,
+          "box": [
+            407,
+            377,
+            8,
+            8
+          ],
+          "centroid": [
+            410.6470588235294,
+            380.3137254901961
+          ]
+        },
+        {
+          "type": "dust",
+          "area": 3,
+          "box": [
+            444,
+            439,
+            2,
+            2
+          ],
+          "centroid": [
+            444.6666666666667,
+            439.6666666666667
+          ]
+        }
+      ],
+      "threshold": 23.585,
+      "is_anomaly": true,
+      "verdict": "DEFECT",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation/hm_170926_152747_slot5.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation_orig/170926_152747_slot5.png"
+    },
+    {
+      "filename": "170926_152759_slot6.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\defect\\170926_152759_slot6.png",
+      "ground_truth": "defect",
+      "is_defect_gt": true,
+      "score": 24.945,
+      "dust_count": 1,
+      "defects": [
+        {
+          "type": "dust",
+          "area": 4,
+          "box": [
+            546,
+            570,
+            2,
+            2
+          ],
+          "centroid": [
+            546.5,
+            570.5
+          ]
+        }
+      ],
+      "threshold": 23.585,
+      "is_anomaly": true,
+      "verdict": "DEFECT",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation/hm_170926_152759_slot6.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20260917_163723/validation_orig/170926_152759_slot6.png"
+    }
+  ]
+}

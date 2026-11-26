@@ -1,0 +1,44 @@
+{
+  "model_id": "versaceblack_custom_pixel_ssim_20261002_170711",
+  "threshold": 38.4,
+  "dust_sensitivity": "high",
+  "perimeter_ratio": 0.925,
+  "total_validated": 2,
+  "accuracy_pct": 50.0,
+  "normal_count": 1,
+  "defect_count": 1,
+  "avg_normal_score": 0.97,
+  "avg_defect_score": 0.37,
+  "items": [
+    {
+      "filename": "011026_142743_slot1.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\versaceblack\\val\\good\\011026_142743_slot1.png",
+      "ground_truth": "good",
+      "is_defect_gt": false,
+      "score": 0.97,
+      "dust_count": 0,
+      "defects": [],
+      "threshold": 38.4,
+      "is_anomaly": false,
+      "verdict": "PASS",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/versaceblack_custom_pixel_ssim_20261002_170711/validation/hm_011026_142743_slot1.png",
+      "orig_url": "/api/model_image/versaceblack_custom_pixel_ssim_20261002_170711/validation_orig/011026_142743_slot1.png"
+    },
+    {
+      "filename": "011026_142847_slot4.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\versaceblack\\val\\defect\\011026_142847_slot4.png",
+      "ground_truth": "defect",
+      "is_defect_gt": true,
+      "score": 0.367,
+      "dust_count": 0,
+      "defects": [],
+      "threshold": 38.4,
+      "is_anomaly": false,
+      "verdict": "PASS",
+      "is_correct": false,
+      "heatmap_url": "/api/model_image/versaceblack_custom_pixel_ssim_20261002_170711/validation/hm_011026_142847_slot4.png",
+      "orig_url": "/api/model_image/versaceblack_custom_pixel_ssim_20261002_170711/validation_orig/011026_142847_slot4.png"
+    }
+  ]
+}

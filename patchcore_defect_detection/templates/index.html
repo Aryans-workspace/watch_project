@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PatchCore Defect Detection Studio | ABB Cobot & Mech-Mind</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/style.css?v=5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dark-theme">
+
+    <!-- Top Telemetry & Network Bar -->
+    <header class="top-nav">
+        <div class="brand">
+            <div class="brand-logo">
+                <i class="fa-solid fa-microchip"></i>
+            </div>
+            <div class="brand-text">
+                <h1>PatchCore Defect Detection Studio</h1>
+                <span class="subtext">ABB Cobot & Mech-Mind Vision AI</span>
+            </div>
+        </div>
+
+        <div class="telemetry-bar">
+            <!-- Active Model Pill -->
+            <div class="telemetry-pill highlight-pill" id="activeModelPill" title="Current model loaded for inference">
+                <span class="indicator-dot online" id="modelDot"></span>
+                <span class="pill-label"><i class="fa-solid fa-brain"></i> Active Model:</span>
+                <strong class="pill-value text-accent" id="activeModelText">Loading...</strong>
+            </div>
+
+            <!-- Cobot Socket Status -->
+            <div class="telemetry-pill" id="cobotStatusPill">
+                <span class="indicator-dot listening" id="cobotDot"></span>
+                <span class="pill-label"><i class="fa-solid fa-satellite-dish"></i> Cobot Socket:</span>
+                <strong class="pill-value" id="cobotStatusText">PORT 12343</strong>
+            </div>
+
+            <!-- Server IP for RAPID configuration -->
+            <div class="telemetry-pill" title="Configure this IP in RAPID CAM_SERVER_IP">
+                <span class="pill-label"><i class="fa-solid fa-network-wired"></i> Server IP:</span>
+                <strong class="pill-value highlight-ip" id="hostIpText">Detecting...</strong>
+            </div>
+
+            <!-- Camera Status -->
+            <div class="telemetry-pill">
+                <span class="indicator-dot online" id="cameraDot"></span>
+                <span class="pill-label"><i class="fa-solid fa-video"></i> Camera:</span>
+                <strong class="pill-value" id="cameraModelText">Mech-Eye UHP-140</strong>
+                <span class="pill-badge" id="cameraFpsText">0.0 FPS</span>
+            </div>
+        </div>
+
+        <div class="top-actions">
+            <button id="btnReconnectCam" class="btn btn-secondary btn-sm" title="Reconnect Camera">
+                <i class="fa-solid fa-rotate"></i> Camera
+            </button>
+            <button id="btnFullscreen" class="btn btn-secondary btn-sm" title="Toggle Fullscreen">
+                <i class="fa-solid fa-maximize"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Studio Tab Navigation -->
+    <nav class="studio-tabs">
+        <button class="tab-btn active" data-tab="train">
+            <i class="fa-solid fa-gears"></i> 1. Model Training
+        </button>
+        <button class="tab-btn" data-tab="validation">
+            <i class="fa-solid fa-chart-line"></i> 2. Validation & Defect Heatmaps
+        </button>
+        <button class="tab-btn" data-tab="inspection">
+            <i class="fa-solid fa-robot"></i> 3. Live Cobot Inspection (Slots 1–8)
+        </button>
+    </nav>
+
+    <!-- Main Workspace Container -->
+    <main class="workspace-container">
+        <!-- ================================================================= -->
+        <!-- TAB 1: MODEL TRAINING -->
+        <!-- ================================================================= -->
+        <section class="tab-content active" id="tabContent-train">
+            <div class="train-grid">
+                <!-- Training Configuration Card -->
+                <div class="card train-config-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-folder-tree text-accent"></i>
+                            <h3>Select Dataset for Training</h3>
+                        </div>
+                        <button class="btn btn-ghost btn-xs" id="btnRefreshDatasets" title="Refresh datasets">
+                            <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                        </button>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="control-row">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                <label for="selectDataset" style="margin-bottom: 0;">Target Dataset Folder</label>
+                                <span id="datasetMaskStatusPill" class="badge badge-neutral fs-xs" style="cursor: pointer;" title="View / edit custom grid focus mask">
+                                    <i class="fa-solid fa-border-all"></i> Focus Mask: Checking...
+                                </span>
+                            </div>
+                            <select id="selectDataset" class="select-input">
+                                <option value="">Loading datasets...</option>
+                            </select>
+                        </div>
+
+                        <!-- Dataset Counts Visualizer -->
+                        <div class="dataset-stats-grid mt-1">
+                            <div class="stat-pill border-train">
+                                <span class="stat-label">Normal Training Watches</span>
+                                <strong class="stat-count text-green" id="trainGoodCount">0</strong>
+                                <span class="stat-sub">Normal memory bank</span>
+                            </div>
+                            <div class="stat-pill border-val-good">
+                                <span class="stat-label">Normal Validation</span>
+                                <strong class="stat-count text-blue" id="valGoodCount">0</strong>
+                                <span class="stat-sub">Test false alarms</span>
+                            </div>
+                            <div class="stat-pill border-val-defect">
+                                <span class="stat-label">Defect Validation</span>
+                                <strong class="stat-count text-red" id="valDefectCount">0</strong>
+                                <span class="stat-sub">Test defect recall</span>
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="control-row mb-1">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                <label for="selectFocusMode" style="margin-bottom: 0;">Inspection Target & Region of Interest</label>
+                                <a href="#gridMeshEditorCard" id="linkJumpToGrid" class="fs-xs text-accent" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                    <i class="fa-solid fa-paintbrush"></i> Paint Focus Grid
+                                </a>
+                            </div>
+                            <select id="selectFocusMode" class="select-input" style="border-color: var(--color-green);">
+                                <option value="custom_mask" selected>🎨 Custom Grid Focus Mask (Hexagonal / Oval / Square / Novel Shapes) [Recommended]</option>
+                                <option value="dial">🎯 Watch Dial Face (Standard Circular Mode) [0% Fixture Noise]</option>
+                                <option value="full">🌐 Full Camera Frame (Includes Watch Case & Fixture)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row-2col">
+                            <div class="control-row">
+                                <label for="selectResolution">Inspection Resolution & Precision</label>
+                                <select id="selectResolution" class="select-input">
+                                    <option value="standard" selected>Standard (448x448) - Optimal</option>
+                                    <option value="pixel_zoom">Micro-Defect Pixel Zoom (896x896) - Extreme Detail (Lint/Hair)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row-2col">
+                            <div class="control-row">
+                                <label for="selectBackbone">Feature Extractor Backbone</label>
+                                <select id="selectBackbone" class="select-input">
+                                    <option value="resnet18" selected>ResNet-18 (Fast CPU Inference ~120ms)</option>
+                                    <option value="wide_resnet50_2">WideResNet-50-2 (Benchmark High Capacity)</option>
+                                    <option value="pixel_ssim">Pixel-Level SSIM (Micro-Defect Comparison Engine)</option>
+                                </select>
+                            </div>
+
+                            <div class="control-row">
+                                <label for="selectCoreset">Coreset Subsampling Ratio</label>
+                                <select id="selectCoreset" class="select-input">
+                                    <option value="0.01" selected>1% (~35s Fast CPU) [Recommended by PatchCore Paper]</option>
+                                    <option value="0.02">2% (~60s Balanced Precision)</option>
+                                    <option value="0.05">5% (~2.5 min High Density)</option>
+                                    <option value="0.10">10% (~8 min Ultra Dense)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="training-btn-wrap mt-2">
+                            <button id="btnStartTraining" class="btn btn-hero">
+                                <i class="fa-solid fa-bolt"></i>
+                                <span id="btnStartTrainingText">TRAIN PATCHCORE MODEL</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Training Live Terminal & Progress Card -->
+                <div class="card train-terminal-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-terminal text-dim"></i>
+                            <h3>Training Activity & Anomaly Calibration Log</h3>
+                        </div>
+                        <span class="badge" id="trainingStatusBadge">IDLE</span>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Progress Bar -->
+                        <div class="progress-box" id="trainProgressBox" style="display: none;">
+                            <div class="progress-labels">
+                                <span id="trainProgressText">Initializing...</span>
+                                <span id="trainProgressPercent">0%</span>
+                            </div>
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill" id="trainProgressBarFill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="terminal-log" id="trainTerminalLog">
+                            <div class="log-line text-muted">[System] Ready to train. Select a dataset and click 'TRAIN PATCHCORE MODEL'.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- Interactive Grid Mesh Focus Mask Editor Card                  -->
+            <!-- ============================================================= -->
+            <div class="card mt-2" id="gridMeshEditorCard">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-border-all text-accent"></i>
+                        <h3>Interactive Grid Mesh Focus Mask Editor</h3>
+                        <span class="text-dim fs-xs ml-1">(Drag to paint inspection zone in red; excludes fixture clamps & tray reflections)</span>
+                    </div>
+                    <div class="header-actions">
+                        <span class="badge badge-neutral" id="gridMaskCoverageBadge">0 cells (0.0% coverage)</span>
+                        <button class="btn btn-ghost btn-xs" id="btnReloadSampleImage" title="Reload sample watch image">
+                            <i class="fa-solid fa-arrows-rotate"></i> Reload Sample
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Toolbar Controls -->
+                    <div class="grid-editor-toolbar">
+                        <div class="toolbar-group">
+                            <span class="toolbar-label">Tool:</span>
+                            <button type="button" class="btn btn-xs btn-primary tool-btn active" id="toolPaint">
+                                <i class="fa-solid fa-paintbrush"></i> Paint Focus (Left Click)
+                            </button>
+                            <button type="button" class="btn btn-xs btn-outline tool-btn" id="toolErase">
+                                <i class="fa-solid fa-eraser"></i> Erase (Right Click)
+                            </button>
+                        </div>
+
+                        <div class="toolbar-group">
+                            <span class="toolbar-label">Brush:</span>
+                            <div class="btn-group" id="brushSizeGroup">
+                                <button type="button" class="btn btn-xs brush-btn" data-size="1" title="1x1 Cell (Fine contours & borders)">1x1</button>
+                                <button type="button" class="btn btn-xs brush-btn active" data-size="2" title="2x2 Cells (Standard stroke)">2x2</button>
+                                <button type="button" class="btn btn-xs brush-btn" data-size="3" title="3x3 Cells (Fast center fill)">3x3</button>
+                            </div>
+                        </div>
+
+                        <div class="toolbar-group">
+                            <label for="selectGridDensity" class="toolbar-label">Mesh Density:</label>
+                            <select id="selectGridDensity" class="select-input-sm">
+                                <option value="24">24 x 24 (Coarse)</option>
+                                <option value="32" selected>32 x 32 (Standard)</option>
+                                <option value="40">40 x 40 (Fine Detail)</option>
+                            </select>
+                        </div>
+
+                        <div class="toolbar-group ml-auto">
+                            <button type="button" class="btn btn-xs btn-outline" id="btnInvertGrid" title="Invert painted cells">
+                                <i class="fa-solid fa-right-left"></i> Invert
+                            </button>
+                            <button type="button" class="btn btn-xs btn-outline" id="btnClearGrid" title="Clear all painted cells">
+                                <i class="fa-solid fa-trash-can"></i> Clear All
+                            </button>
+                            <button type="button" class="btn btn-xs btn-success" id="btnSaveGridMask">
+                                <i class="fa-solid fa-floppy-disk"></i> <strong>Save Focus Mask</strong>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Interactive Viewport -->
+                    <div class="grid-editor-viewport-wrapper mt-1">
+                        <div class="grid-canvas-container" id="gridCanvasContainer">
+                            <img id="gridSampleImg" class="grid-sample-img" alt="Sample watch image" style="display: none;" />
+                            <canvas id="gridMeshCanvas" class="grid-mesh-canvas"></canvas>
+                            <div class="grid-editor-overlay-hint" id="gridEditorHint">
+                                <i class="fa-solid fa-hand-pointer"></i>
+                                <span>Select a dataset to load its sample watch image and paint your custom focus mask</span>
+                            </div>
+                        </div>
+                        <div class="grid-editor-sidepanel">
+                            <div class="panel-section">
+                                <h4><i class="fa-solid fa-shapes text-accent"></i> Arbitrary Watch Shapes</h4>
+                                <p class="fs-xs text-muted">
+                                    Works with <strong>hexagonal</strong>, <strong>oval</strong>, <strong>square</strong>, <strong>round</strong>, or <strong>novel watch profiles</strong>.
+                                    PatchCore anomaly scoring & dust inspection focus 100% inside your painted red area.
+                                </p>
+                            </div>
+                            <div class="panel-section">
+                                <h4><i class="fa-solid fa-chart-pie text-blue"></i> Mesh Statistics</h4>
+                                <ul class="stats-list">
+                                    <li><span>Target Dataset:</span> <strong id="meshDatasetName">-</strong></li>
+                                    <li><span>Sample Image:</span> <strong id="meshSampleName" class="text-truncate" style="max-width: 140px;">-</strong></li>
+                                    <li><span>Image Res:</span> <strong id="meshResolution">-</strong></li>
+                                    <li><span>Active Cells:</span> <strong id="meshActiveCount" class="text-red">0 / 1024</strong></li>
+                                    <li><span>Focus Area:</span> <strong id="meshCoveragePct" class="text-accent">0%</strong></li>
+                                    <li><span>Saved Status:</span> <strong id="meshSavedStatus" class="text-amber">Not Saved</strong></li>
+                                </ul>
+                            </div>
+                            <div class="panel-section">
+                                <h4><i class="fa-solid fa-lightbulb text-amber"></i> Controls</h4>
+                                <ul class="fs-xs text-muted" style="padding-left: 1.1rem; line-height: 1.45;">
+                                    <li><strong>Left Click & Drag:</strong> Paint red focus boxes</li>
+                                    <li><strong>Right Click & Drag:</strong> Fast erase</li>
+                                    <li><strong>3x3 Brush:</strong> Quickly fill the dial interior</li>
+                                    <li><strong>1x1 Brush:</strong> Trace precise watch outer edges</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saved Models Registry Card -->
+            <div class="card mt-2">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-box-archive text-accent"></i>
+                        <h3>Trained Models Registry</h3>
+                    </div>
+                    <button class="btn btn-ghost btn-xs" id="btnRefreshModels">
+                        <i class="fa-solid fa-arrows-rotate"></i> Refresh Models
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="models-table-wrap">
+                        <table class="data-table" id="modelsTable">
+                            <thead>
+                                <tr>
+                                    <th>Model ID</th>
+                                    <th>Dataset</th>
+                                    <th>Focus Region</th>
+                                    <th>Backbone</th>
+                                    <th>Train Watches</th>
+                                    <th>Calibrated Threshold</th>
+                                    <th>Created At</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modelsTableBody">
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">No trained models yet. Train your first model above!</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 2: VALIDATION RESULTS & DEFECT HEATMAPS -->
+        <!-- ================================================================= -->
+        <section class="tab-content" id="tabContent-validation">
+            <div class="validation-layout">
+                <!-- Validation Metrics & Threshold Control Bar -->
+                <div class="card val-control-card">
+                    <div class="val-metrics-bar">
+                        <div class="metric-pill">
+                            <span class="metric-title">Active Model</span>
+                            <strong class="metric-val text-accent" id="valModelId">None</strong>
+                        </div>
+                        <div class="metric-pill">
+                            <span class="metric-title">Focus Region</span>
+                            <strong class="metric-val text-cyan" id="valFocusModeText">Circular Dial</strong>
+                        </div>
+                        <div class="metric-pill">
+                            <span class="metric-title">Validation Accuracy</span>
+                            <strong class="metric-val text-green" id="valAccuracyText">0.0%</strong>
+                        </div>
+                        <div class="metric-pill">
+                            <span class="metric-title">Normal Mean Score</span>
+                            <strong class="metric-val text-blue" id="valNormalMean">0.0</strong>
+                        </div>
+                        <div class="metric-pill">
+                            <span class="metric-title">Defect Mean Score</span>
+                            <strong class="metric-val text-red" id="valDefectMean">0.0</strong>
+                        </div>
+                        <div class="metric-pill">
+                            <span class="metric-title">Total Validated</span>
+                            <strong class="metric-val" id="valTotalCount">0</strong>
+                        </div>
+                    </div>
+
+                    <div class="threshold-slider-wrap">
+                        <div class="threshold-label-row">
+                            <label for="sliderThreshold">
+                                <i class="fa-solid fa-sliders"></i> Decision Threshold Fine-Tuning:
+                                <strong class="text-accent" id="thresholdValueText">14.00</strong>
+                            </label>
+                            <span class="subtext">Watches with Score &ge; Threshold are flagged as DEFECTIVE</span>
+                        </div>
+                        <div class="slider-row">
+                            <span class="slider-limit" id="sliderMinText">0.0</span>
+                            <input type="range" id="sliderThreshold" class="custom-range" min="1" max="50" step="0.1" value="14">
+                            <span class="slider-limit" id="sliderMaxText">50.0</span>
+                            <button id="btnSaveThreshold" class="btn btn-secondary btn-sm" title="Save this threshold to active model">
+                                <i class="fa-solid fa-floppy-disk"></i> Save Threshold
+                            </button>
+                            <button id="btnReRunVal" class="btn btn-secondary btn-sm">
+                                <i class="fa-solid fa-arrows-rotate"></i> Re-Run Validation
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Surface Defect (Dust, Scratches & Perimeter) Precision Controls -->
+                    <div class="dust-tuning-wrap" style="border-top: 1px solid var(--border); padding-top: 14px; margin-top: 14px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label for="selectDustSensitivity" style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-accent"></i> Dust Sensitivity:
+                                </label>
+                                <select id="selectDustSensitivity" class="custom-select form-select-sm" style="background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 0.85rem;">
+                                    <option value="high" selected>High (Diff &gt; 15, Area &ge; 2px)</option>
+                                    <option value="ultra">Ultra-Fine (Diff &gt; 13, Area &ge; 2px)</option>
+                                    <option value="medium">Medium (Diff &gt; 18, Area &ge; 3px)</option>
+                                    <option value="low">Low (Diff &gt; 22, Area &ge; 4px)</option>
+                                </select>
+                            </div>
+
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label for="selectPerimeterRatio" style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-circle-dot text-accent"></i> Dial Perimeter Coverage:
+                                </label>
+                                <select id="selectPerimeterRatio" class="custom-select form-select-sm" style="background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 0.85rem;">
+                                    <option value="0.925" selected>92.5% Radius (Perimeter Dust &amp; Outer Rim)</option>
+                                    <option value="0.94">94.0% Radius (Full Edge to Fixture Border)</option>
+                                    <option value="0.90">90.0% Radius (Hour Marker Core)</option>
+                                    <option value="0.85">85.0% Radius (Inner Dial Only)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 8px;">
+                            <button id="btnApplyDustSens" class="btn btn-primary btn-sm" title="Re-inspect validation watches with updated sensitivity &amp; perimeter coverage">
+                                <i class="fa-solid fa-sliders"></i> Apply Sensitivity &amp; Perimeter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Validation Visualizer Gallery -->
+                <div class="card mt-1">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-images text-accent"></i>
+                            <h3>Validation Inspection Gallery (Original Watches & Anomaly Heatmaps)</h3>
+                        </div>
+                        <div class="gallery-filter-group">
+                            <span class="filter-label">Filter:</span>
+                            <button class="btn-filter active" data-filter="all">All (<span id="filterAllCount">0</span>)</button>
+                            <button class="btn-filter" data-filter="defect">Defects (<span id="filterDefectCount">0</span>)</button>
+                            <button class="btn-filter" data-filter="pass">Normal Passed (<span id="filterPassCount">0</span>)</button>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="validation-gallery-grid" id="validationGallery">
+                            <div class="empty-state">No validation results available yet. Run validation or train a model to see defect heatmaps.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 3: LIVE COBOT INSPECTION (SLOTS 1 - 8) -->
+        <!-- ================================================================= -->
+        <section class="tab-content" id="tabContent-inspection">
+            <div class="inspection-layout">
+                <!-- Left Column: Live Camera & Instant Test -->
+                <div class="inspection-viewport-column">
+                    <div class="camera-card">
+                        <div class="camera-header">
+                            <div class="header-left">
+                                <i class="fa-solid fa-eye text-green"></i>
+                                <span class="card-title">Mech-Eye Inspection Stream (26mm &times; 29mm)</span>
+                            </div>
+                            <div class="live-badge">
+                                <span class="live-dot"></span> LIVE
+                            </div>
+                        </div>
+
+                        <div class="viewport-container" id="viewportContainer">
+                            <img id="liveFeed" src="/video_feed" alt="Camera Stream" crossorigin="anonymous">
+                            <div class="capture-flash" id="captureFlash"></div>
+
+                            <div class="active-slot-overlay" id="activeSlotOverlay" style="display: none;">
+                                <i class="fa-solid fa-crosshairs fa-spin"></i>
+                                <span>INSPECTING SLOT <strong id="overlaySlotNum">1</strong> (RUNNING PATCHCORE)...</span>
+                            </div>
+                        </div>
+
+                        <div class="camera-bottom-toolbar">
+                            <button id="btnInspectCurrent" class="btn btn-secondary btn-sm" title="Test PatchCore anomaly detection on the currently centered watch">
+                                <i class="fa-solid fa-camera"></i> Inspect Current Camera View
+                            </button>
+                            <span class="subtext text-dim">Center cropped to 26mm &times; 29mm ($828 \times 922\text{ px}$)</span>
+                        </div>
+                    </div>
+
+                    <!-- Single Frame Immediate Result Card (when user clicks Inspect Current) -->
+                    <div class="card mt-1" id="instantResultCard" style="display: none;">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fa-solid fa-bullseye text-accent"></i>
+                                <h3>Instant Inspection Result</h3>
+                            </div>
+                            <span class="badge" id="instantVerdictBadge">PASS</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="instant-result-row">
+                                <div class="instant-thumb-wrap">
+                                    <img id="instantImg" src="" alt="Overlay Heatmap">
+                                </div>
+                                <div class="instant-details">
+                                    <div class="stat-pill">
+                                        <span class="stat-label">Anomaly Score</span>
+                                        <strong class="stat-count" id="instantScore">0.00</strong>
+                                    </div>
+                                    <div class="stat-pill">
+                                        <span class="stat-label">Decision Threshold</span>
+                                        <strong class="stat-count text-dim" id="instantThreshold">14.0</strong>
+                                    </div>
+                                    <div class="stat-pill">
+                                        <span class="stat-label">Inference Latency</span>
+                                        <strong class="stat-count text-blue" id="instantLatency">0 ms</strong>
+                                    </div>
+                                    <div class="stat-pill" id="instantDustPill">
+                                        <span class="stat-label">Dust / Scratches</span>
+                                        <strong class="stat-count text-red" id="instantDustCount">0</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: 8-Slot Fixture Tray & Execution Controls -->
+                <div class="inspection-control-column">
+                    <!-- Execution Action Card -->
+                    <div class="card execute-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fa-solid fa-robot text-green"></i>
+                                <h3>Automated Cobot Inspection Execution</h3>
+                            </div>
+                            <span class="badge" id="inspectionJobStatusBadge">IDLE</span>
+                        </div>
+
+                        <div class="card-body">
+                            <!-- Continuous Mode Selector -->
+                            <div style="background: rgba(223, 193, 109, 0.08); border: 1px solid rgba(223, 193, 109, 0.25); border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                                <label for="chkContinuousMode" style="margin: 0; font-weight: 500; font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff;">
+                                    <input type="checkbox" id="chkContinuousMode" style="width: 17px; height: 17px; accent-color: #dfc16d; cursor: pointer;">
+                                    <span><strong class="text-accent"><i class="fa-solid fa-repeat"></i> Continuous Inspection Mode</strong> (Loops cycles over and over)</span>
+                                </label>
+                                <span class="badge" id="badgeCycleCount" style="display: none; background: #dfc16d; color: #000; font-weight: bold; font-size: 11px; padding: 2px 8px; border-radius: 4px;">CYCLE 1</span>
+                            </div>
+
+                            <!-- Run Buttons -->
+                            <button id="btnStartInspectionFull" class="btn btn-hero">
+                                <i class="fa-solid fa-play"></i>
+                                <span>START INSPECTION RUN (SLOTS 1 - 8)</span>
+                            </button>
+
+                            <button id="btnStartContinuousInspection" class="btn btn-hero" style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); margin-top: 8px;">
+                                <i class="fa-solid fa-repeat"></i>
+                                <span>START CONTINUOUS CYCLE (OVER &amp; OVER)</span>
+                            </button>
+
+                            <button id="btnSimulateInspection" class="btn btn-sub-hero" style="margin-top: 8px;">
+                                <i class="fa-solid fa-flask"></i>
+                                <span>Simulate Inspection Run (Dry Run)</span>
+                            </button>
+
+                            <button id="btnCancelInspection" class="btn btn-danger w-full mt-1" style="display: none;">
+                                <i class="fa-solid fa-stop"></i> STOP ACTIVE RUN
+                            </button>
+
+                            <!-- Progress Box -->
+                            <div class="progress-box mt-1" id="inspectProgressBox" style="display: none;">
+                                <div class="progress-labels">
+                                    <span id="inspectProgressText">Inspecting: Slot 0 of 8</span>
+                                    <span id="inspectProgressPercent">0%</span>
+                                </div>
+                                <div class="progress-bar-track">
+                                    <div class="progress-bar-fill" id="inspectProgressBarFill" style="width: 0%;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Batch Summary Stats -->
+                            <div class="dataset-stats-grid mt-1">
+                                <div class="stat-pill border-train">
+                                    <span class="stat-label">Watches Passed</span>
+                                    <strong class="stat-count text-green" id="inspectPassedCount">0</strong>
+                                </div>
+                                <div class="stat-pill border-val-defect">
+                                    <span class="stat-label">Defects Detected</span>
+                                    <strong class="stat-count text-red" id="inspectDefectCount">0</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 8-Slot Fixture Tray Cards -->
+                    <div class="tray-card mt-1">
+                        <div class="tray-card-header">
+                            <div class="header-left">
+                                <i class="fa-solid fa-table-cells text-accent"></i>
+                                <h3>Watch Fixture Tray (8 Slots: CMM1 – CMM8)</h3>
+                            </div>
+                            <span class="subtext">Real-time PatchCore detection verdicts per slot</span>
+                        </div>
+
+                        <!-- Individual Slot Inspection Action Bar -->
+                        <div class="individual-slot-bar" style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin: 12px 0 16px 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+                            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <label for="selectInspectSlot" style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-bullseye text-accent"></i> Target Slot:
+                                </label>
+                                <select id="selectInspectSlot" class="custom-select form-select-sm" style="background: var(--bg-dark); color: var(--text-primary); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font-size: 0.9rem; font-weight: 600;">
+                                    <option value="1">Slot 1 (CMM1)</option>
+                                    <option value="2">Slot 2 (CMM2)</option>
+                                    <option value="3">Slot 3 (CMM3)</option>
+                                    <option value="4">Slot 4 (CMM4)</option>
+                                    <option value="5">Slot 5 (CMM5)</option>
+                                    <option value="6">Slot 6 (CMM6)</option>
+                                    <option value="7">Slot 7 (CMM7)</option>
+                                    <option value="8" selected>Slot 8 (CMM8)</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button id="btnInspectSingleSlotCobot" class="btn btn-secondary btn-sm" title="Command Cobot to move to this slot and perform PatchCore inspection">
+                                    <i class="fa-solid fa-robot"></i> Move Cobot &amp; Inspect Slot
+                                </button>
+                                <button id="btnInspectSingleSlotCamera" class="btn btn-primary btn-sm" title="Capture current camera view immediately and assign inspection to this slot">
+                                    <i class="fa-solid fa-camera"></i> Snap Camera to Slot
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="slots-grid">
+                            <!-- Slots 1 to 8 -->
+                            <div class="slot-box" id="inspectSlot-1" data-slot="1">
+                                <div class="slot-header">
+                                    <span class="slot-title">SLOT 1</span>
+                                    <span class="slot-verdict verdict-idle">IDLE</span>
+                                </div>
+                                <div class="slot-thumb" id="inspectThumb-1">
+                                    <i class="fa-regular fa-clock empty-icon"></i>
+                                </div>
+                                <div class="slot-score-tag" id="inspectScoreTag-1">Score: --</div>
+                                <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                                    <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="1" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Move Cobot to Slot 1"><i class="fa-solid fa-robot"></i> Cobot</button>
+                                    <button class="btn btn-primary btn-xs btn-slot-snap" data-slot="1" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Snap Camera to Slot 1"><i class="fa-solid fa-camera"></i> Snap</button>
+                                </div>
+                            </div>
+
+                            <div class="slot-box" id="inspectSlot-2" data-slot="2">
+                                <div class="slot-header">
+                                    <span class="slot-title">SLOT 2</span>
+                                    <span class="slot-verdict verdict-idle">IDLE</span>
+                                </div>
+                                <div class="slot-thumb" id="inspectThumb-2">
+                                    <i class="fa-regular fa-clock empty-icon"></i>
+                                </div>
+                                <div class="slot-score-tag" id="inspectScoreTag-2">Score: --</div>
+                                <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                                    <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="2" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Move Cobot to Slot 2"><i class="fa-solid fa-robot"></i> Cobot</button>
+                                    <button class="btn btn-primary btn-xs btn-slot-snap" data-slot="2" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Snap Camera to Slot 2"><i class="fa-solid fa-camera"></i> Snap</button>
+                                </div>
+                            </div>
+
+                            <div class="slot-box" id="inspectSlot-3" data-slot="3">
+                                <div class="slot-header">
+                                    <span class="slot-title">SLOT 3</span>
+                                    <span class="slot-verdict verdict-idle">IDLE</span>
+                                </div>
+                                <div class="slot-thumb" id="inspectThumb-3">
+                                    <i class="fa-regular fa-clock empty-icon"></i>
+                                </div>
+                                <div class="slot-score-tag" id="inspectScoreTag-3">Score: --</div>
+                                <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                                    <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="3" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Move Cobot to Slot 3"><i class="fa-solid fa-robot"></i> Cobot</button>
+                                    <button class="btn btn-primary btn-xs btn-slot-snap" data-slot="3" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Snap Camera to Slot 3"><i class="fa-solid fa-camera"></i> Snap</button>
+                                </div>
+                            </div>
+
+                            <div class="slot-box" id="inspectSlot-4" data-slot="4">
+                                <div class="slot-header">
+                                    <span class="slot-title">SLOT 4</span>
+                                    <span class="slot-verdict verdict-idle">IDLE</span>
+                                </div>
+                                <div class="slot-thumb" id="inspectThumb-4">
+                                    <i class="fa-regular fa-clock empty-icon"></i>
+                                </div>
+                                <div class="slot-score-tag" id="inspectScoreTag-4">Score: --</div>
+                                <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                                    <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="4" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Move Cobot to Slot 4"><i class="fa-solid fa-robot"></i> Cobot</button>
+                                    <button class="btn btn-primary btn-xs btn-slot-snap" data-slot="4" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Snap Camera to Slot 4"><i class="fa-solid fa-camera"></i> Snap</button>
+                                </div>
+                            </div>
+
+                            <div class="slot-box" id="inspectSlot-5" data-slot="5">
+                                <div class="slot-header">
+                                    <span class="slot-title">SLOT 5</span>
+                                    <span class="slot-verdict verdict-idle">IDLE</span>
+                                </div>
+                                <div class="slot-thumb" id="inspectThumb-5">
+                                    <i class="fa-regular fa-clock empty-icon"></i>
+                                </div>
+                                <div class="slot-score-tag" id="inspectScoreTag-5">Score: --</div>
+                                <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                                    <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="5" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Move Cobot to Slot 5"><i class="fa-solid fa-robot"></i> Cobot</button>
+                                    <button class="btn btn-primary btn-xs btn-slot-snap" data-slot="5" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Snap Camera to Slot 5"><i class="fa-solid fa-camera"></i> Snap</button>
+                                </div>
+                            </div>
+
+                            <div class="slot-box" id="inspectSlot-6" data-slot="6">
+                                <div class="slot-header">
+                                    <span class="slot-title">SLOT 6</span>
+                                    <span class="slot-verdict verdict-idle">IDLE</span>
+                                </div>
+                                <div class="slot-thumb" id="inspectThumb-6">
+                                    <i class="fa-regular fa-clock empty-icon"></i>
+                                </div>
+                                <div class="slot-score-tag" id="inspectScoreTag-6">Score: --</div>
+                                <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                                    <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="6" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Move Cobot to Slot 6"><i class="fa-solid fa-robot"></i> Cobot</button>
+                                    <button class="btn btn-primary btn-xs btn-slot-snap" data-slot="6" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Snap Camera to Slot 6"><i class="fa-solid fa-camera"></i> Snap</button>
+                                </div>
+                            </div>
+
+                            <div class="slot-box" id="inspectSlot-7" data-slot="7">
+                                <div class="slot-header">
+                                    <span class="slot-title">SLOT 7</span>
+                                    <span class="slot-verdict verdict-idle">IDLE</span>
+                                </div>
+                                <div class="slot-thumb" id="inspectThumb-7">
+                                    <i class="fa-regular fa-clock empty-icon"></i>
+                                </div>
+                                <div class="slot-score-tag" id="inspectScoreTag-7">Score: --</div>
+                                <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                                    <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="7" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Move Cobot to Slot 7"><i class="fa-solid fa-robot"></i> Cobot</button>
+                                    <button class="btn btn-primary btn-xs btn-slot-snap" data-slot="7" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Snap Camera to Slot 7"><i class="fa-solid fa-camera"></i> Snap</button>
+                                </div>
+                            </div>
+
+                            <div class="slot-box" id="inspectSlot-8" data-slot="8">
+                                <div class="slot-header">
+                                    <span class="slot-title">SLOT 8</span>
+                                    <span class="slot-verdict verdict-idle">IDLE</span>
+                                </div>
+                                <div class="slot-thumb" id="inspectThumb-8">
+                                    <i class="fa-regular fa-clock empty-icon"></i>
+                                </div>
+                                <div class="slot-score-tag" id="inspectScoreTag-8">Score: --</div>
+                                <div class="slot-actions" style="margin-top: 6px; display: flex; gap: 4px;">
+                                    <button class="btn btn-secondary btn-xs btn-slot-cobot" data-slot="8" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Move Cobot to Slot 8"><i class="fa-solid fa-robot"></i> Cobot</button>
+                                    <button class="btn btn-primary btn-xs btn-slot-snap" data-slot="8" style="flex: 1; padding: 3px 4px; font-size: 0.72rem;" title="Snap Camera to Slot 8"><i class="fa-solid fa-camera"></i> Snap</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Side-by-Side Defect Inspection Modal -->
+    <div class="modal" id="defectModal">
+        <div class="modal-backdrop" id="modalBackdrop"></div>
+        <div class="modal-dialog modal-dialog-lg">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span class="modal-title" id="modalSlotTitle">Inspection Detail</span>
+                    <span class="badge" id="modalVerdictBadge">PASS</span>
+                    <span class="badge" id="modalDustBadge" style="display: none;">0 Dust</span>
+                    <span class="subtext" id="modalScoreText">Score: 0.00</span>
+                </div>
+                <button id="btnCloseModal" class="btn btn-icon btn-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body-compare">
+                <div class="compare-pane">
+                    <span class="pane-label"><i class="fa-solid fa-camera"></i> Original Watch Capture</span>
+                    <div class="img-wrap">
+                        <img id="modalOrigImg" src="" alt="Original Watch">
+                    </div>
+                </div>
+                <div class="compare-pane">
+                    <span class="pane-label"><i class="fa-solid fa-fire text-red"></i> PatchCore Anomaly Heatmap</span>
+                    <div class="img-wrap">
+                        <img id="modalHeatmapImg" src="" alt="Anomaly Heatmap">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast">Ready</div>
+
+    <script src="/static/js/app.js?v=2.3"></script>
+</body>
+</html>

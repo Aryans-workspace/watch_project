@@ -1,0 +1,44 @@
+{
+  "model_id": "versaceblack_custom_wide_resnet50_2_20261001_152003",
+  "threshold": 250.36,
+  "dust_sensitivity": "high",
+  "perimeter_ratio": 0.925,
+  "total_validated": 2,
+  "accuracy_pct": 50.0,
+  "normal_count": 1,
+  "defect_count": 1,
+  "avg_normal_score": 248.47,
+  "avg_defect_score": 249.41,
+  "items": [
+    {
+      "filename": "011026_142743_slot1.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\versaceblack\\val\\good\\011026_142743_slot1.png",
+      "ground_truth": "good",
+      "is_defect_gt": false,
+      "score": 248.473,
+      "dust_count": 0,
+      "defects": [],
+      "threshold": 250.36,
+      "is_anomaly": false,
+      "verdict": "PASS",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/versaceblack_custom_wide_resnet50_2_20261001_152003/validation/hm_011026_142743_slot1.png",
+      "orig_url": "/api/model_image/versaceblack_custom_wide_resnet50_2_20261001_152003/validation_orig/011026_142743_slot1.png"
+    },
+    {
+      "filename": "011026_142847_slot4.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\versaceblack\\val\\defect\\011026_142847_slot4.png",
+      "ground_truth": "defect",
+      "is_defect_gt": true,
+      "score": 249.408,
+      "dust_count": 0,
+      "defects": [],
+      "threshold": 250.36,
+      "is_anomaly": false,
+      "verdict": "PASS",
+      "is_correct": false,
+      "heatmap_url": "/api/model_image/versaceblack_custom_wide_resnet50_2_20261001_152003/validation/hm_011026_142847_slot4.png",
+      "orig_url": "/api/model_image/versaceblack_custom_wide_resnet50_2_20261001_152003/validation_orig/011026_142847_slot4.png"
+    }
+  ]
+}

@@ -1,0 +1,996 @@
+{
+  "model_id": "Test_2_dial_resnet18_20261002_153613",
+  "threshold": 36.119,
+  "dust_sensitivity": "high",
+  "perimeter_ratio": 0.925,
+  "total_validated": 8,
+  "accuracy_pct": 87.5,
+  "normal_count": 2,
+  "defect_count": 6,
+  "avg_normal_score": 37.56,
+  "avg_defect_score": 45.25,
+  "items": [
+    {
+      "filename": "170926_152629_slot7.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\good\\170926_152629_slot7.png",
+      "ground_truth": "good",
+      "is_defect_gt": false,
+      "score": 34.837,
+      "dust_count": 0,
+      "defects": [],
+      "threshold": 36.119,
+      "is_anomaly": false,
+      "verdict": "PASS",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation/hm_170926_152629_slot7.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation_orig/170926_152629_slot7.png"
+    },
+    {
+      "filename": "170926_152641_slot8.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\good\\170926_152641_slot8.png",
+      "ground_truth": "good",
+      "is_defect_gt": false,
+      "score": 40.279,
+      "dust_count": 3,
+      "defects": [
+        {
+          "type": "dust",
+          "area": 3,
+          "box": [
+            494,
+            536,
+            3,
+            1
+          ],
+          "centroid": [
+            495.0,
+            536.0
+          ],
+          "dist": 70.0
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            511,
+            536,
+            1,
+            2
+          ],
+          "centroid": [
+            511.0,
+            536.5
+          ],
+          "dist": 80.97067370350824
+        },
+        {
+          "type": "dust",
+          "area": 9,
+          "box": [
+            372,
+            603,
+            8,
+            2
+          ],
+          "centroid": [
+            375.3333333333333,
+            603.1111111111111
+          ],
+          "dist": 145.5625528428361
+        }
+      ],
+      "threshold": 36.119,
+      "is_anomaly": true,
+      "verdict": "DEFECT",
+      "is_correct": false,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation/hm_170926_152641_slot8.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation_orig/170926_152641_slot8.png"
+    },
+    {
+      "filename": "170926_152655_slot1.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\defect\\170926_152655_slot1.png",
+      "ground_truth": "defect",
+      "is_defect_gt": true,
+      "score": 48.119,
+      "dust_count": 8,
+      "defects": [
+        {
+          "type": "dust",
+          "area": 22,
+          "box": [
+            390,
+            336,
+            5,
+            5
+          ],
+          "centroid": [
+            391.95454545454544,
+            338.27272727272725
+          ],
+          "dist": 134.22804235841298
+        },
+        {
+          "type": "dust",
+          "area": 56,
+          "box": [
+            347,
+            363,
+            8,
+            9
+          ],
+          "centroid": [
+            350.7142857142857,
+            367.05357142857144
+          ],
+          "dist": 133.1054048048587
+        },
+        {
+          "type": "dust",
+          "area": 54,
+          "box": [
+            550,
+            378,
+            8,
+            9
+          ],
+          "centroid": [
+            553.5925925925926,
+            381.98148148148147
+          ],
+          "dist": 135.69635093496242
+        },
+        {
+          "type": "dust",
+          "area": 74,
+          "box": [
+            319,
+            420,
+            9,
+            10
+          ],
+          "centroid": [
+            322.8918918918919,
+            424.3783783783784
+          ],
+          "dist": 126.81703459301384
+        },
+        {
+          "type": "dust",
+          "area": 28,
+          "box": [
+            537,
+            422,
+            6,
+            6
+          ],
+          "centroid": [
+            539.5,
+            424.39285714285717
+          ],
+          "dist": 102.63794227222967
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            483,
+            531,
+            1,
+            2
+          ],
+          "centroid": [
+            483.0,
+            531.5
+          ],
+          "dist": 79.69473006416422
+        },
+        {
+          "type": "dust",
+          "area": 51,
+          "box": [
+            495,
+            534,
+            8,
+            9
+          ],
+          "centroid": [
+            498.3529411764706,
+            537.843137254902
+          ],
+          "dist": 93.30821873339335
+        },
+        {
+          "type": "dust",
+          "area": 5,
+          "box": [
+            481,
+            552,
+            5,
+            1
+          ],
+          "centroid": [
+            483.0,
+            552.0
+          ],
+          "dist": 98.08669634563088
+        }
+      ],
+      "threshold": 36.119,
+      "is_anomaly": true,
+      "verdict": "DEFECT",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation/hm_170926_152655_slot1.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation_orig/170926_152655_slot1.png"
+    },
+    {
+      "filename": "170926_152712_slot2.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\defect\\170926_152712_slot2.png",
+      "ground_truth": "defect",
+      "is_defect_gt": true,
+      "score": 41.519,
+      "dust_count": 4,
+      "defects": [
+        {
+          "type": "dust",
+          "area": 9,
+          "box": [
+            641,
+            471,
+            5,
+            6
+          ],
+          "centroid": [
+            642.2222222222222,
+            472.77777777777777
+          ],
+          "dist": 167.27551753150274
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            548,
+            503,
+            2,
+            1
+          ],
+          "centroid": [
+            548.5,
+            503.0
+          ],
+          "dist": 77.96313231265147
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            457,
+            556,
+            2,
+            1
+          ],
+          "centroid": [
+            457.5,
+            556.0
+          ],
+          "dist": 80.91507894082537
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            569,
+            586,
+            2,
+            1
+          ],
+          "centroid": [
+            569.5,
+            586.0
+          ],
+          "dist": 144.2610481037761
+        }
+      ],
+      "threshold": 36.119,
+      "is_anomaly": true,
+      "verdict": "DEFECT",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation/hm_170926_152712_slot2.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation_orig/170926_152712_slot2.png"
+    },
+    {
+      "filename": "170926_152724_slot3.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\defect\\170926_152724_slot3.png",
+      "ground_truth": "defect",
+      "is_defect_gt": true,
+      "score": 48.119,
+      "dust_count": 3,
+      "defects": [
+        {
+          "type": "dust",
+          "area": 78,
+          "box": [
+            480,
+            468,
+            11,
+            10
+          ],
+          "centroid": [
+            485.55128205128204,
+            472.64102564102564
+          ],
+          "dist": 47.70499038700039
+        },
+        {
+          "type": "dust",
+          "area": 135,
+          "box": [
+            441,
+            542,
+            13,
+            14
+          ],
+          "centroid": [
+            447.3259259259259,
+            548.7925925925925
+          ],
+          "dist": 37.92342656695032
+        },
+        {
+          "type": "dust",
+          "area": 4,
+          "box": [
+            469,
+            557,
+            2,
+            2
+          ],
+          "centroid": [
+            469.5,
+            557.5
+          ],
+          "dist": 40.527768258318886
+        }
+      ],
+      "threshold": 36.119,
+      "is_anomaly": true,
+      "verdict": "DEFECT",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation/hm_170926_152724_slot3.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation_orig/170926_152724_slot3.png"
+    },
+    {
+      "filename": "170926_152735_slot4.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\defect\\170926_152735_slot4.png",
+      "ground_truth": "defect",
+      "is_defect_gt": true,
+      "score": 48.119,
+      "dust_count": 30,
+      "defects": [
+        {
+          "type": "dust",
+          "area": 25,
+          "box": [
+            485,
+            298,
+            5,
+            6
+          ],
+          "centroid": [
+            486.96,
+            300.6
+          ],
+          "dist": 178.8004519009949
+        },
+        {
+          "type": "dust",
+          "area": 21,
+          "box": [
+            509,
+            357,
+            6,
+            5
+          ],
+          "centroid": [
+            511.5238095238095,
+            358.6190476190476
+          ],
+          "dist": 125.7996914077163
+        },
+        {
+          "type": "dust",
+          "area": 22,
+          "box": [
+            329,
+            406,
+            6,
+            5
+          ],
+          "centroid": [
+            331.8636363636364,
+            408.0
+          ],
+          "dist": 159.77802913742966
+        },
+        {
+          "type": "dust",
+          "area": 3,
+          "box": [
+            505,
+            427,
+            2,
+            2
+          ],
+          "centroid": [
+            505.6666666666667,
+            427.3333333333333
+          ],
+          "dist": 60.08235089349361
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            508,
+            427,
+            1,
+            2
+          ],
+          "centroid": [
+            508.0,
+            427.5
+          ],
+          "dist": 61.1657583947097
+        },
+        {
+          "type": "dust",
+          "area": 30,
+          "box": [
+            450,
+            439,
+            6,
+            6
+          ],
+          "centroid": [
+            452.6,
+            441.5
+          ],
+          "dist": 43.68077380266974
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            471,
+            445,
+            2,
+            1
+          ],
+          "centroid": [
+            471.5,
+            445.0
+          ],
+          "dist": 34.1796723214252
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            557,
+            448,
+            2,
+            1
+          ],
+          "centroid": [
+            557.5,
+            448.0
+          ],
+          "dist": 88.13200326782547
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            500,
+            466,
+            2,
+            1
+          ],
+          "centroid": [
+            500.5,
+            466.0
+          ],
+          "dist": 28.622543562723422
+        },
+        {
+          "type": "dust",
+          "area": 6,
+          "box": [
+            526,
+            489,
+            3,
+            2
+          ],
+          "centroid": [
+            527.0,
+            489.5
+          ],
+          "dist": 53.049505181481194
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            608,
+            498,
+            2,
+            1
+          ],
+          "centroid": [
+            608.5,
+            498.0
+          ],
+          "dist": 134.84528171204212
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            559,
+            501,
+            2,
+            1
+          ],
+          "centroid": [
+            559.5,
+            501.0
+          ],
+          "dist": 87.3169513897502
+        },
+        {
+          "type": "dust",
+          "area": 23,
+          "box": [
+            596,
+            502,
+            5,
+            5
+          ],
+          "centroid": [
+            598.0,
+            504.0
+          ],
+          "dist": 125.51493934986385
+        },
+        {
+          "type": "dust",
+          "area": 21,
+          "box": [
+            379,
+            508,
+            6,
+            5
+          ],
+          "centroid": [
+            381.6190476190476,
+            510.2857142857143
+          ],
+          "dist": 98.48247654248469
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            506,
+            515,
+            2,
+            1
+          ],
+          "centroid": [
+            506.5,
+            515.0
+          ],
+          "dist": 47.83565615730592
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            430,
+            535,
+            2,
+            1
+          ],
+          "centroid": [
+            430.5,
+            535.0
+          ],
+          "dist": 71.52796655854269
+        },
+        {
+          "type": "dust",
+          "area": 32,
+          "box": [
+            541,
+            541,
+            6,
+            7
+          ],
+          "centroid": [
+            543.34375,
+            544.03125
+          ],
+          "dist": 94.33944901590745
+        },
+        {
+          "type": "dust",
+          "area": 7,
+          "box": [
+            495,
+            542,
+            5,
+            2
+          ],
+          "centroid": [
+            496.85714285714283,
+            542.2857142857143
+          ],
+          "dist": 66.9538372801038
+        },
+        {
+          "type": "dust",
+          "area": 7,
+          "box": [
+            501,
+            542,
+            4,
+            2
+          ],
+          "centroid": [
+            502.7142857142857,
+            542.5714285714286
+          ],
+          "dist": 69.34989663485668
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            459,
+            545,
+            2,
+            1
+          ],
+          "centroid": [
+            459.5,
+            545.0
+          ],
+          "dist": 67.79564882792995
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            515,
+            547,
+            2,
+            1
+          ],
+          "centroid": [
+            515.5,
+            547.0
+          ],
+          "dist": 79.14701510480354
+        },
+        {
+          "type": "dust",
+          "area": 3,
+          "box": [
+            527,
+            557,
+            3,
+            1
+          ],
+          "centroid": [
+            528.0,
+            557.0
+          ],
+          "dist": 94.30270409696638
+        },
+        {
+          "type": "dust",
+          "area": 4,
+          "box": [
+            536,
+            557,
+            2,
+            2
+          ],
+          "centroid": [
+            536.5,
+            557.5
+          ],
+          "dist": 99.72211389656759
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            572,
+            559,
+            2,
+            1
+          ],
+          "centroid": [
+            572.5,
+            559.0
+          ],
+          "dist": 126.11998255629439
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            621,
+            560,
+            1,
+            2
+          ],
+          "centroid": [
+            621.0,
+            560.5
+          ],
+          "dist": 167.20720678248293
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            532,
+            570,
+            1,
+            2
+          ],
+          "centroid": [
+            532.0,
+            570.5
+          ],
+          "dist": 107.80190165298569
+        },
+        {
+          "type": "dust",
+          "area": 3,
+          "box": [
+            535,
+            570,
+            3,
+            2
+          ],
+          "centroid": [
+            536.0,
+            570.3333333333334
+          ],
+          "dist": 109.83067776253493
+        },
+        {
+          "type": "dust",
+          "area": 3,
+          "box": [
+            511,
+            574,
+            2,
+            2
+          ],
+          "centroid": [
+            511.6666666666667,
+            574.6666666666666
+          ],
+          "dist": 102.4526991130812
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            518,
+            575,
+            1,
+            2
+          ],
+          "centroid": [
+            518.0,
+            575.5
+          ],
+          "dist": 105.64681727340394
+        },
+        {
+          "type": "dust",
+          "area": 22,
+          "box": [
+            402,
+            609,
+            5,
+            5
+          ],
+          "centroid": [
+            404.09090909090907,
+            610.9090909090909
+          ],
+          "dist": 149.76016639285803
+        }
+      ],
+      "threshold": 36.119,
+      "is_anomaly": true,
+      "verdict": "DEFECT",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation/hm_170926_152735_slot4.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation_orig/170926_152735_slot4.png"
+    },
+    {
+      "filename": "170926_152747_slot5.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\defect\\170926_152747_slot5.png",
+      "ground_truth": "defect",
+      "is_defect_gt": true,
+      "score": 48.119,
+      "dust_count": 8,
+      "defects": [
+        {
+          "type": "dust",
+          "area": 34,
+          "box": [
+            427,
+            359,
+            6,
+            7
+          ],
+          "centroid": [
+            429.55882352941177,
+            362.3235294117647
+          ],
+          "dist": 97.67806913689184
+        },
+        {
+          "type": "dust",
+          "area": 49,
+          "box": [
+            411,
+            367,
+            7,
+            8
+          ],
+          "centroid": [
+            413.8775510204082,
+            370.3061224489796
+          ],
+          "dist": 90.95977206038835
+        },
+        {
+          "type": "dust",
+          "area": 165,
+          "box": [
+            421,
+            369,
+            19,
+            13
+          ],
+          "centroid": [
+            430.2181818181818,
+            375.09090909090907
+          ],
+          "dist": 84.917829022829
+        },
+        {
+          "type": "dust",
+          "area": 55,
+          "box": [
+            407,
+            376,
+            9,
+            9
+          ],
+          "centroid": [
+            410.8545454545455,
+            380.27272727272725
+          ],
+          "dist": 81.76610261709973
+        },
+        {
+          "type": "dust",
+          "area": 5,
+          "box": [
+            387,
+            438,
+            3,
+            2
+          ],
+          "centroid": [
+            387.8,
+            438.4
+          ],
+          "dist": 46.51881339845203
+        },
+        {
+          "type": "dust",
+          "area": 11,
+          "box": [
+            440,
+            439,
+            7,
+            3
+          ],
+          "centroid": [
+            443.72727272727275,
+            439.6363636363636
+          ],
+          "dist": 25.131061416778348
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            445,
+            530,
+            2,
+            1
+          ],
+          "centroid": [
+            445.5,
+            530.0
+          ],
+          "dist": 71.91835648845154
+        },
+        {
+          "type": "dust",
+          "area": 2,
+          "box": [
+            491,
+            551,
+            2,
+            1
+          ],
+          "centroid": [
+            491.5,
+            551.0
+          ],
+          "dist": 110.39587854625734
+        }
+      ],
+      "threshold": 36.119,
+      "is_anomaly": true,
+      "verdict": "DEFECT",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation/hm_170926_152747_slot5.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation_orig/170926_152747_slot5.png"
+    },
+    {
+      "filename": "170926_152759_slot6.png",
+      "filepath": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2\\val\\defect\\170926_152759_slot6.png",
+      "ground_truth": "defect",
+      "is_defect_gt": true,
+      "score": 37.479,
+      "dust_count": 1,
+      "defects": [
+        {
+          "type": "dust",
+          "area": 4,
+          "box": [
+            546,
+            570,
+            2,
+            2
+          ],
+          "centroid": [
+            546.5,
+            570.5
+          ],
+          "dist": 143.65409844484077
+        }
+      ],
+      "threshold": 36.119,
+      "is_anomaly": true,
+      "verdict": "DEFECT",
+      "is_correct": true,
+      "heatmap_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation/hm_170926_152759_slot6.png",
+      "orig_url": "/api/model_image/Test_2_dial_resnet18_20261002_153613/validation_orig/170926_152759_slot6.png"
+    }
+  ]
+}

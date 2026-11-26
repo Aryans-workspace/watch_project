@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Camera AI Defect Studio | Collection -> Training -> Inspection</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QRCode library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dark-theme">
+
+    <!-- Top Navigation & Telemetry Bar -->
+    <header class="top-nav">
+        <div class="brand">
+            <div class="brand-logo">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+            </div>
+            <div class="brand-text">
+                <h1>Phone Camera Defect Studio</h1>
+                <span class="subtext">Optical AI Inspection for Coloured Images (No Robotics)</span>
+            </div>
+        </div>
+
+        <div class="telemetry-bar">
+            <!-- Connection Status -->
+            <div class="telemetry-pill" id="camStatusPill">
+                <span class="indicator-dot online" id="statusDot"></span>
+                <span class="pill-label"><i class="fa-solid fa-satellite-dish"></i> Phone Camera:</span>
+                <strong class="pill-value" id="statusText">CONNECTING...</strong>
+            </div>
+
+            <!-- Server Host IP for Phone Connection -->
+            <div class="telemetry-pill" title="Open this URL on your phone browser">
+                <span class="pill-label"><i class="fa-solid fa-network-wired"></i> Host IP:</span>
+                <strong class="pill-value highlight-ip" id="hostIpText">Detecting...</strong>
+            </div>
+
+            <!-- Resolution -->
+            <div class="telemetry-pill">
+                <span class="pill-label"><i class="fa-solid fa-expand"></i> Resolution:</span>
+                <strong class="pill-value" id="resolutionText">-- × --</strong>
+            </div>
+
+            <!-- Active Model Badge -->
+            <div class="telemetry-pill">
+                <span class="pill-label"><i class="fa-solid fa-brain"></i> Active Model:</span>
+                <strong class="pill-value highlight-model" id="activeModelBadge">Untrained</strong>
+            </div>
+
+            <!-- FPS -->
+            <div class="telemetry-pill">
+                <span class="pill-label"><i class="fa-solid fa-gauge-high"></i> FPS:</span>
+                <strong class="pill-value highlight-fps" id="fpsText">0.0</strong>
+            </div>
+        </div>
+
+        <div class="top-actions">
+            <button id="btnDiagnostics" class="btn btn-secondary btn-sm" title="Run Camera Connectivity Test">
+                <i class="fa-solid fa-stethoscope"></i> Diagnostics
+            </button>
+            <button id="btnFullscreen" class="btn btn-secondary btn-sm" title="Toggle Fullscreen (F)">
+                <i class="fa-solid fa-maximize"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Studio Stage Navigation Tabs -->
+    <nav class="studio-nav">
+        <button class="studio-tab-btn active" data-page="page-collection">
+            <i class="fa-solid fa-camera"></i> 1. Data Collection
+        </button>
+        <button class="studio-tab-btn" data-page="page-training">
+            <i class="fa-solid fa-gears"></i> 2. Model Training
+        </button>
+        <button class="studio-tab-btn" data-page="page-inspection">
+            <i class="fa-solid fa-microscope"></i> 3. Defect Inspection
+        </button>
+    </nav>
+
+    <!-- ================================================================= -->
+    <!-- STAGE 1: DATA COLLECTION PAGE -->
+    <!-- ================================================================= -->
+    <main class="studio-page active" id="page-collection">
+        <div class="collection-layout">
+            <!-- Left: Camera Viewport & Reticle -->
+            <section class="viewport-section">
+                <div class="viewport-card">
+                    <div class="card-header">
+                        <div class="header-left">
+                            <i class="fa-solid fa-eye text-accent"></i>
+                            <span class="card-title">Live Optical Viewfinder & Reticle</span>
+                            <span class="badge" id="backendBadge">SIMULATED</span>
+                        </div>
+                        <div class="live-badge">
+                            <span class="live-dot"></span> LIVE FEED
+                        </div>
+                    </div>
+
+                    <div class="viewport-container" id="viewportContainer">
+                        <img id="liveFeed" src="/video_feed" alt="Phone Camera Stream" crossorigin="anonymous">
+                        <div class="capture-flash" id="captureFlash"></div>
+
+                        <div class="hud-top-left">
+                            <div class="hud-badge">
+                                <i class="fa-solid fa-location-crosshairs text-accent"></i>
+                                <span>Center: <strong id="hudCoords">X: --, Y: --</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="viewport-overlay-controls">
+                            <button class="overlay-toggle active" id="toggleCropRoi" title="Toggle Precision Crop ROI Box (828x922 px)">
+                                <i class="fa-solid fa-crop-simple"></i> <span id="labelCropRoiBtn">Crop ROI (828×922)</span>
+                            </button>
+                            <button class="overlay-toggle" id="toggleLiveZoom" title="Toggle 100% Zoomed 828x922 Live Inspection View">
+                                <i class="fa-solid fa-magnifying-glass-plus"></i> Zoom View
+                            </button>
+                            <button class="overlay-toggle active" id="toggleCrosshair" title="Toggle Crosshairs">
+                                <i class="fa-solid fa-crosshairs"></i> Crosshair
+                            </button>
+                            <button class="overlay-toggle active" id="toggleDialRoi" title="Toggle Dial Circular Mask">
+                                <i class="fa-regular fa-circle"></i> Dial Circle
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Precision Zoom & Crop Framing Control Toolbar -->
+                    <div class="crop-zoom-toolbar">
+                        <div class="zoom-toolbar-left">
+                            <span class="zoom-title"><i class="fa-solid fa-magnifying-glass-plus text-accent"></i> Zoom &amp; Crop:</span>
+                            <span class="zoom-pill" id="valCropZoom">1.50x</span>
+                            <span class="zoom-dim-pill" id="valCropDim">34.7×38.7 mm &rarr; 828×922px</span>
+                        </div>
+                        <div class="zoom-slider-wrap">
+                            <input type="range" id="sliderCropZoom" min="1.0" max="3.5" step="0.05" value="1.50" class="zoom-slider" title="Adjust Crop Zoom Factor">
+                        </div>
+                        <div class="zoom-presets">
+                            <button class="btn-zoom-preset" data-zoom="1.0" title="1.0x (52×58mm)">1.0x</button>
+                            <button class="btn-zoom-preset" data-zoom="1.25" title="1.25x (41.6×46.4mm)">1.25x</button>
+                            <button class="btn-zoom-preset active" data-zoom="1.5" title="1.5x (34.7×38.7mm)">1.5x</button>
+                            <button class="btn-zoom-preset" data-zoom="1.75" title="1.75x (29.7×33.1mm)">1.75x</button>
+                            <button class="btn-zoom-preset" data-zoom="2.0" title="2.0x (26×29mm)">2.0x</button>
+                            <button class="btn-zoom-preset" data-zoom="2.5" title="2.5x (20.8×23.2mm)">2.5x</button>
+                        </div>
+                        <div class="zoom-nudge-group" title="Nudge dial position center">
+                            <span class="nudge-title">Pan:</span>
+                            <button class="btn-nudge" id="btnNudgeLeft" title="Nudge Left (X-)"><i class="fa-solid fa-arrow-left"></i></button>
+                            <button class="btn-nudge" id="btnNudgeRight" title="Nudge Right (X+)"><i class="fa-solid fa-arrow-right"></i></button>
+                            <button class="btn-nudge" id="btnNudgeUp" title="Nudge Up (Y-)"><i class="fa-solid fa-arrow-up"></i></button>
+                            <button class="btn-nudge" id="btnNudgeDown" title="Nudge Down (Y+)"><i class="fa-solid fa-arrow-down"></i></button>
+                            <button class="btn-nudge-reset" id="btnNudgeReset" title="Reset Pan Offset"><i class="fa-solid fa-rotate-left"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Viewport Shutter Control -->
+                    <div class="quick-action-bar">
+                        <button id="btnCaptureToDataset" class="btn btn-primary btn-lg" title="Capture photo into active dataset (Shortcut: Space)">
+                            <i class="fa-solid fa-camera"></i> CAPTURE TO DATASET
+                        </button>
+                        <button id="btnTorch" class="btn btn-secondary btn-md" title="Toggle Phone Flashlight / LED">
+                            <i class="fa-solid fa-lightbulb"></i> <span id="torchLabel">Torch LED</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Phone Pairing & Connection Box -->
+                <div class="connection-accordion mt-2">
+                    <div class="connection-header" id="togglePhonePairing">
+                        <span><i class="fa-solid fa-mobile-screen text-accent"></i> Phone Camera Connection Settings</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="connection-body" id="phonePairingBody">
+                        <div class="qr-container">
+                            <div id="qrcodeBox" class="qrcode-wrapper"></div>
+                            <div class="qr-instructions">
+                                <h4>Connect Your Smartphone</h4>
+                                <p>Open this link on your phone (Safari or Chrome):</p>
+                                <a id="mobileCompanionLink" href="#" target="_blank" class="mobile-url-badge">https://10.105.1.15:5443/phone</a>
+                                <p class="helper-text"><i class="fa-solid fa-lock text-accent"></i> <strong>HTTPS (Port 5443)</strong> unlocks live camera streaming in Chrome. Tap <em>"Advanced" &rarr; "Proceed"</em> on the browser prompt.</p>
+                                <div class="alt-modes-row mt-1">
+                                    <button class="btn btn-xs btn-secondary" id="btnShowIpWebcam"><i class="fa-solid fa-wifi"></i> IP Webcam App</button>
+                                    <button class="btn btn-xs btn-secondary" id="btnShowUsb"><i class="fa-brands fa-usb"></i> USB Webcam</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- IP Webcam Drawer -->
+                        <div id="drawerIpWebcam" class="drawer-box" style="display: none; margin-top: 10px;">
+                            <label>IP Webcam URL (Android App):</label>
+                            <div class="input-with-btn">
+                                <input type="text" id="ipWebcamInput" class="form-control" value="http://10.105.1.15:8080">
+                                <button id="btnConnectIpWebcam" class="btn btn-primary btn-sm">Connect</button>
+                            </div>
+                        </div>
+
+                        <!-- USB Drawer -->
+                        <div id="drawerUsb" class="drawer-box" style="display: none; margin-top: 10px;">
+                            <label>DirectShow Video Index (DroidCam/Camo/Iriun):</label>
+                            <div class="input-with-btn">
+                                <select id="usbIndexSelect" class="form-control">
+                                    <option value="0">Camera Index 0</option>
+                                    <option value="1">Camera Index 1</option>
+                                    <option value="2">Camera Index 2</option>
+                                </select>
+                                <button id="btnConnectUsb" class="btn btn-primary btn-sm">Connect Device</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right: Dataset Controls & Collection Panel -->
+            <aside class="sidebar-section">
+                <div class="panel-card">
+                    <div class="card-header">
+                        <div class="header-left">
+                            <i class="fa-solid fa-folder-tree text-accent"></i>
+                            <span class="card-title">Dataset Collection Manager</span>
+                        </div>
+                    </div>
+
+                    <div class="panel-body">
+                        <!-- Dataset Folder Selector -->
+                        <div class="control-section">
+                            <label class="control-label">Active Dataset Folder:</label>
+                            <div class="input-with-btn">
+                                <select id="datasetSelect" class="form-control"></select>
+                                <button id="btnNewDataset" class="btn btn-secondary btn-sm" title="Create New Dataset"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Target Category Selector (Train Good, Val Good, Val Defect) -->
+                        <div class="control-section">
+                            <label class="control-label">Target Capture Category:</label>
+                            <div class="category-toggle-grid">
+                                <button class="cat-btn active border-train" data-cat="train_good">
+                                    <span class="cat-dot text-green">&#9679;</span>
+                                    <strong>Training Normal</strong>
+                                    <span>train/good</span>
+                                </button>
+                                <button class="cat-btn border-val-good" data-cat="val_good">
+                                    <span class="cat-dot text-blue">&#9679;</span>
+                                    <strong>Validation Normal</strong>
+                                    <span>val/good</span>
+                                </button>
+                                <button class="cat-btn border-val-defect" data-cat="val_defect">
+                                    <span class="cat-dot text-red">&#9679;</span>
+                                    <strong>Validation Defect</strong>
+                                    <span>val/defect</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Dataset Statistics Breakdown -->
+                        <div class="dataset-stats-card">
+                            <div class="stat-pill border-train">
+                                <span class="stat-label">Normal Training</span>
+                                <strong class="stat-count text-green" id="countTrainGood">0</strong>
+                                <span class="stat-sub">Normal memory bank</span>
+                            </div>
+                            <div class="stat-pill border-val-good">
+                                <span class="stat-label">Normal Validation</span>
+                                <strong class="stat-count text-blue" id="countValGood">0</strong>
+                                <span class="stat-sub">False alarm test</span>
+                            </div>
+                            <div class="stat-pill border-val-defect">
+                                <span class="stat-label">Defect Validation</span>
+                                <strong class="stat-count text-red" id="countValDefect">0</strong>
+                                <span class="stat-sub">Defect recall test</span>
+                            </div>
+                        </div>
+
+                        <!-- Collected Images Gallery -->
+                        <div class="dataset-gallery-header mt-2">
+                            <h4><i class="fa-solid fa-images text-accent"></i> Collected Images (<span id="totalImagesBadge">0</span>)</h4>
+                            <button id="btnRefreshDatasetImages" class="btn btn-ghost btn-xs"><i class="fa-solid fa-rotate"></i></button>
+                        </div>
+
+                        <div class="dataset-images-grid" id="datasetImagesGrid">
+                            <div class="empty-state">No images in this dataset yet. Snap photos above!</div>
+                        </div>
+
+                        <!-- Next Stage Button -->
+                        <div class="stage-footer mt-2">
+                            <button class="btn btn-accent btn-block btn-lg" id="btnProceedToTraining">
+                                Proceed to Model Training <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- ================================================================= -->
+    <!-- STAGE 2: MODEL TRAINING PAGE -->
+    <!-- ================================================================= -->
+    <main class="studio-page" id="page-training">
+        <div class="training-layout">
+            <!-- Training Config Card -->
+            <div class="card train-config-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-gears text-accent"></i>
+                        <h3>Model Training Configuration</h3>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="control-section">
+                        <label class="control-label">Select Dataset for Training:</label>
+                        <select id="trainDatasetSelect" class="form-control"></select>
+                    </div>
+
+                    <!-- Dataset Counts Visualizer -->
+                    <div class="dataset-stats-card mb-2">
+                        <div class="stat-pill border-train">
+                            <span class="stat-label">Normal Training Samples</span>
+                            <strong class="stat-count text-green" id="trainCardGoodCount">0</strong>
+                            <span class="stat-sub">Used to fit Memory Bank</span>
+                        </div>
+                        <div class="stat-pill border-val-good">
+                            <span class="stat-label">Normal Validation</span>
+                            <strong class="stat-count text-blue" id="trainCardValGoodCount">0</strong>
+                            <span class="stat-sub">Calibrates lower threshold</span>
+                        </div>
+                        <div class="stat-pill border-val-defect">
+                            <span class="stat-label">Defect Validation</span>
+                            <strong class="stat-count text-red" id="trainCardValDefectCount">0</strong>
+                            <span class="stat-sub">Calibrates upper threshold</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row-2col">
+                        <div class="control-section">
+                            <label class="control-label">Feature Extractor Backbone:</label>
+                            <select id="selectBackbone" class="form-control">
+                                <option value="resnet18" selected>PatchCore ResNet-18 (Deep Color Embedding) [Recommended]</option>
+                                <option value="pixel_ssim">Pixel-Level Multi-channel SSIM (Texture Delta)</option>
+                            </select>
+                        </div>
+
+                        <div class="control-section">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                <label class="control-label" style="margin-bottom: 0;">Inspection Target & ROI:</label>
+                                <a href="#gridMeshEditorCard" id="linkJumpToGrid" class="fs-xs text-accent" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                    <i class="fa-solid fa-paintbrush"></i> Paint Focus Grid
+                                </a>
+                            </div>
+                            <select id="selectTrainRoi" class="form-control" style="border-color: var(--color-green);">
+                                <option value="custom_mask" selected>🎯 Custom Grid Focus Mask (Hexagonal / Oval / Square / Novel Shapes) [Recommended]</option>
+                                <option value="dial">🎯 Watch Dial Face (Standard Circular Mode) [0% Fixture Noise]</option>
+                                <option value="full">🌐 Full Camera Frame (Includes Watch Case & Fixture)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control-section">
+                        <label class="control-label">Coreset Subsampling Ratio:</label>
+                        <select id="selectCoreset" class="form-control">
+                            <option value="0.01">1% (~2s Ultra-Fast CPU)</option>
+                            <option value="0.02" selected>2% (~4s Balanced Precision) [Recommended]</option>
+                            <option value="0.05">5% (~8s High Density Memory Bank)</option>
+                        </select>
+                    </div>
+
+                    <button id="btnStartTraining" class="btn btn-hero btn-block mt-2">
+                        <i class="fa-solid fa-bolt"></i> <span id="btnTrainingLabel">TRAIN AI DEFECT MODEL</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Training Progress & Logs Card -->
+            <div class="card train-progress-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-terminal text-accent"></i>
+                        <h3>Training Execution & Telemetry</h3>
+                    </div>
+                    <span class="badge" id="trainStatusBadge">IDLE</span>
+                </div>
+
+                <div class="card-body">
+                    <!-- Progress Bar -->
+                    <div class="progress-container">
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill" id="trainProgressFill" style="width: 0%;"></div>
+                        </div>
+                        <div class="progress-meta">
+                            <span id="trainStageText">Ready to train</span>
+                            <strong id="trainProgressText">0%</strong>
+                        </div>
+                    </div>
+
+                    <!-- Live Terminal Output -->
+                    <div class="terminal-window" id="trainTerminal">
+                        <div class="terminal-line">[System] Ready for training. Select a dataset and click 'TRAIN AI DEFECT MODEL'.</div>
+                    </div>
+
+                    <!-- Active Model Card -->
+                    <div class="active-model-summary" id="activeModelSummary" style="display: none;">
+                        <div class="summary-header">
+                            <h4><i class="fa-solid fa-circle-check text-green"></i> Active Model Ready for Inspection</h4>
+                        </div>
+                        <div class="summary-grid">
+                            <div><span>Model ID:</span> <strong id="sumModelId">--</strong></div>
+                            <div><span>Trained Threshold (&tau;):</span> <strong id="sumThreshold">--</strong></div>
+                            <div><span>Memory Bank Size:</span> <strong id="sumMemoryBank">--</strong></div>
+                            <div><span>Feature Dimension:</span> <strong id="sumFeatureDim">--</strong></div>
+                        </div>
+                        <button class="btn btn-accent btn-block mt-2" id="btnProceedToInspection">
+                            Proceed to Defect Inspection <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- Interactive Grid Mesh Focus Mask Editor Card                  -->
+        <!-- ============================================================= -->
+        <div class="card mt-2" id="gridMeshEditorCard">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fa-solid fa-border-all text-accent"></i>
+                    <h3>Interactive Grid Mesh Focus Mask Editor</h3>
+                    <span class="text-dim fs-xs ml-1">(Drag to paint inspection zone in red; excludes fixture clamps & tray reflections)</span>
+                </div>
+                <div class="header-actions">
+                    <span class="badge badge-neutral" id="gridMaskCoverageBadge">0 cells (0.0% coverage)</span>
+                    <button class="btn btn-ghost btn-xs" id="btnReloadSampleImage" title="Reload sample watch image">
+                        <i class="fa-solid fa-arrows-rotate"></i> Reload Sample
+                    </button>
+                    <button class="btn btn-secondary btn-xs" id="btnScrollToTop" title="Scroll back to Training Configuration">
+                        <i class="fa-solid fa-arrow-up"></i> Top
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Toolbar Controls -->
+                <div class="grid-editor-toolbar">
+                    <div class="toolbar-group">
+                        <span class="toolbar-label">Tool:</span>
+                        <button type="button" class="btn btn-xs btn-primary tool-btn active" id="toolPaint">
+                            <i class="fa-solid fa-paintbrush"></i> Paint Focus (Left Click)
+                        </button>
+                        <button type="button" class="btn btn-xs btn-outline tool-btn" id="toolErase">
+                            <i class="fa-solid fa-eraser"></i> Erase (Right Click)
+                        </button>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <span class="toolbar-label">Brush:</span>
+                        <div class="btn-group" id="brushSizeGroup">
+                            <button type="button" class="btn btn-xs brush-btn" data-size="1" title="1x1 Cell (Fine contours & borders)">1x1</button>
+                            <button type="button" class="btn btn-xs brush-btn active" data-size="2" title="2x2 Cells (Standard stroke)">2x2</button>
+                            <button type="button" class="btn btn-xs brush-btn" data-size="3" title="3x3 Cells (Fast center fill)">3x3</button>
+                        </div>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <label for="selectGridDensity" class="toolbar-label">Mesh Density:</label>
+                        <select id="selectGridDensity" class="select-input-sm">
+                            <option value="24">24 x 24 (Coarse)</option>
+                            <option value="32" selected>32 x 32 (Standard)</option>
+                            <option value="40">40 x 40 (Fine Detail)</option>
+                        </select>
+                    </div>
+
+                    <div class="toolbar-group ml-auto">
+                        <button type="button" class="btn btn-xs btn-outline" id="btnInvertGrid" title="Invert painted cells">
+                            <i class="fa-solid fa-right-left"></i> Invert
+                        </button>
+                        <button type="button" class="btn btn-xs btn-outline" id="btnClearGrid" title="Clear all painted cells">
+                            <i class="fa-solid fa-trash-can"></i> Clear All
+                        </button>
+                        <button type="button" class="btn btn-xs btn-success" id="btnSaveGridMask">
+                            <i class="fa-solid fa-floppy-disk"></i> <strong>Save Focus Mask</strong>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Interactive Viewport -->
+                <div class="grid-editor-viewport-wrapper mt-1">
+                    <div class="grid-canvas-container" id="gridCanvasContainer">
+                        <img id="gridSampleImg" class="grid-sample-img" alt="Sample watch image" style="display: none;" />
+                        <canvas id="gridMeshCanvas" class="grid-mesh-canvas"></canvas>
+                        <div class="grid-editor-overlay-hint" id="gridEditorHint">
+                            <i class="fa-solid fa-hand-pointer"></i>
+                            <span>Select a dataset to load its sample watch image and paint your custom focus mask</span>
+                        </div>
+                    </div>
+                    <div class="grid-editor-sidepanel">
+                        <div class="panel-section">
+                            <h4><i class="fa-solid fa-shapes text-accent"></i> Arbitrary Watch Shapes</h4>
+                            <p class="fs-xs text-muted">
+                                Works with <strong>hexagonal</strong>, <strong>oval</strong>, <strong>square</strong>, <strong>round</strong>, or <strong>novel watch profiles</strong>.
+                                PatchCore anomaly scoring & dust inspection focus 100% inside your painted red area.
+                            </p>
+                        </div>
+                        <div class="panel-section">
+                            <h4><i class="fa-solid fa-chart-pie text-blue"></i> Mesh Statistics</h4>
+                            <ul class="stats-list">
+                                <li><span>Target Dataset:</span> <strong id="meshDatasetName">-</strong></li>
+                                <li><span>Sample Image:</span> <strong id="meshSampleName" class="text-truncate" style="max-width: 140px;">-</strong></li>
+                                <li><span>Image Res:</span> <strong id="meshResolution">-</strong></li>
+                                <li><span>Active Cells:</span> <strong id="meshActiveCount" class="text-red">0 / 1024</strong></li>
+                                <li><span>Focus Area:</span> <strong id="meshCoveragePct" class="text-accent">0%</strong></li>
+                                <li><span>Saved Status:</span> <strong id="meshSavedStatus" class="text-amber">Not Saved</strong></li>
+                            </ul>
+                        </div>
+                        <div class="panel-section">
+                            <h4><i class="fa-solid fa-lightbulb text-amber"></i> Controls</h4>
+                            <ul class="fs-xs text-muted" style="padding-left: 1.1rem; line-height: 1.45;">
+                                <li><strong>Left Click & Drag:</strong> Paint red focus boxes</li>
+                                <li><strong>Right Click & Drag:</strong> Fast erase</li>
+                                <li><strong>3x3 Brush:</strong> Quickly fill the dial interior</li>
+                                <li><strong>1x1 Brush:</strong> Trace precise watch outer edges</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trained Models Registry Card -->
+        <div class="card mt-2" id="modelsRegistryCard">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fa-solid fa-box-archive text-accent"></i>
+                    <h3>Trained Models Registry</h3>
+                </div>
+                <button class="btn btn-ghost btn-xs" id="btnRefreshModels">
+                    <i class="fa-solid fa-arrows-rotate"></i> Refresh Models
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="modelsList" class="models-registry-list">
+                    <div class="empty-state">No trained models yet. Train your first model above!</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ================================================================= -->
+    <!-- STAGE 3: DEFECT INSPECTION PAGE -->
+    <!-- ================================================================= -->
+    <main class="studio-page" id="page-inspection">
+        <div class="inspection-layout">
+            <!-- Left: Inspection Live Viewport -->
+            <section class="viewport-section">
+                <div class="viewport-card">
+                    <div class="card-header">
+                        <div class="header-left">
+                            <i class="fa-solid fa-microscope text-accent"></i>
+                            <span class="card-title">AI Defect Inspection Viewport</span>
+                        </div>
+                        <div class="view-toggles" id="inspectionViewToggles">
+                            <button class="toggle-btn active" data-view="annotated">Annotated Overlays</button>
+                            <button class="toggle-btn" data-view="heatmap">Anomaly Heatmap</button>
+                            <button class="toggle-btn" data-view="live">Live Video</button>
+                        </div>
+                    </div>
+
+                    <div class="viewport-container">
+                        <!-- Live stream image -->
+                        <img id="inspectionLiveFeed" src="/video_feed" alt="Live Feed" crossorigin="anonymous">
+                        <!-- AI Result Display Image -->
+                        <img id="inspectionResultImg" src="" alt="AI Inspection Result" style="display: none;" crossorigin="anonymous">
+                    </div>
+
+                    <!-- Inspection Action Bar -->
+                    <div class="quick-action-bar">
+                        <button id="btnRunInspection" class="btn btn-hero btn-lg">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> INSPECT DEFECTS (CURRENT FRAME)
+                        </button>
+                        <div class="sensitivity-control">
+                            <label>Sensitivity: <span id="valInspectSens">65%</span></label>
+                            <input type="range" id="sliderInspectSens" min="15" max="95" value="65" class="range-slider">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right: Inspection Results & Decision Dashboard -->
+            <aside class="sidebar-section">
+                <div class="panel-card">
+                    <div class="card-header">
+                        <div class="header-left">
+                            <i class="fa-solid fa-chart-pie text-accent"></i>
+                            <span class="card-title">Inspection Results & Decision</span>
+                        </div>
+                        <span class="badge" id="inspectTimeBadge">-- ms</span>
+                    </div>
+
+                    <div class="panel-body">
+                        <!-- Big Pass/Fail Verdict Banner -->
+                        <div class="verdict-banner pass" id="verdictBanner">
+                            <div class="verdict-icon"><i class="fa-solid fa-circle-check" id="verdictIcon"></i></div>
+                            <div class="verdict-text">
+                                <h2 id="verdictTitle">STANDBY</h2>
+                                <span id="verdictSub">Click 'INSPECT DEFECTS' to evaluate component</span>
+                            </div>
+                        </div>
+
+                        <!-- Anomaly Score Meter -->
+                        <div class="anomaly-meter-card mt-2">
+                            <div class="meter-header">
+                                <span>Anomaly Distance Score</span>
+                                <strong id="scoreText">0.000 / &tau;: 0.350</strong>
+                            </div>
+                            <div class="meter-track">
+                                <div class="meter-fill" id="scoreMeterFill" style="width: 0%;"></div>
+                                <div class="meter-threshold-line" id="thresholdLine" style="left: 50%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Defect Metrics Breakdown -->
+                        <div class="metrics-grid mt-2">
+                            <div class="metric-box total">
+                                <span class="metric-num" id="inspectTotalDefects">0</span>
+                                <span class="metric-title">Total Defects</span>
+                            </div>
+                            <div class="metric-box dust">
+                                <span class="metric-num text-green" id="inspectDustCount">0</span>
+                                <span class="metric-title">Dust Particles</span>
+                            </div>
+                            <div class="metric-box scratch">
+                                <span class="metric-num text-red" id="inspectScratchCount">0</span>
+                                <span class="metric-title">Micro-Scratches</span>
+                            </div>
+                        </div>
+
+                        <!-- Defect List Table -->
+                        <div class="defect-log-section mt-2">
+                            <h5>Defect Findings Breakdown:</h5>
+                            <div class="defect-list" id="inspectDefectList">
+                                <div class="empty-state">No defects isolated. Surface is pristine!</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Modal for Creating New Dataset -->
+    <div class="modal-backdrop" id="newDatasetModal" style="display: none;">
+        <div class="modal-dialog-sm">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-folder-plus text-accent"></i> Create New Dataset</h3>
+                <button class="modal-close" id="btnCloseNewDatasetModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label>Dataset Folder Name:</label>
+                <input type="text" id="newDatasetNameInput" class="form-control" placeholder="e.g. titanium_bezel_v1">
+                <span class="helper-text">Will generate train/good, val/good, and val/defect directories.</span>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btnCancelNewDataset">Cancel</button>
+                <button class="btn btn-primary" id="btnConfirmNewDataset">Create Dataset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

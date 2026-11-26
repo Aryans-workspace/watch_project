@@ -1,0 +1,12 @@
+{
+  "model_id": "model_watch_dials_v1_20261006_123658",
+  "dataset_name": "watch_dials_v1",
+  "backbone": "resnet18",
+  "roi_mode": "dial",
+  "coreset_ratio": 0.02,
+  "memory_bank_size": 250,
+  "feature_dim": 384,
+  "threshold": 5.685,
+  "trained_at": "2026-10-06 12:36:58",
+  "duration_seconds": 1.0
+}

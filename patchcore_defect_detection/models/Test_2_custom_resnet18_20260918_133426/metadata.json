@@ -1,0 +1,24 @@
+{
+  "model_id": "Test_2_custom_resnet18_20260918_133426",
+  "dataset_name": "Test_2",
+  "dataset_path": "C:\\Users\\MECH MIND\\Desktop\\AI defect detection\\watch_defect_detection\\datasets\\Test_2",
+  "backbone": "resnet18",
+  "layers": [
+    "layer1",
+    "layer2"
+  ],
+  "focus_mode": "custom_mask",
+  "has_focus_mask": true,
+  "image_size": [
+    448,
+    448
+  ],
+  "coreset_ratio": 0.01,
+  "train_images_count": 8,
+  "created_at": "2026-09-18 13:37:33",
+  "weights_file": "weights.pt",
+  "threshold": 28.881,
+  "normal_mean_score": 28.38,
+  "normal_max_score": 28.64,
+  "status": "ready"
+}
